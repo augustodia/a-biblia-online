@@ -57,13 +57,8 @@ $routes->add('/^([a-z]+)\/([\da-z]+)\/([0-9]+)$/', function ($versionAcronym, $b
 
 // Rota de acesso a biblia. Ex: ara/gn/1/1
 $routes->add('/^([a-z]+)\/([a-z]+)\/([0-9]+)\/([0-9]+)$/', function ($version, $book, $chapter, $verse) {
-  // echo "Versão: " . $version . "<br>";
-  // echo "Livro: " . $book . "<br>";
-  // echo "Capítulo: " . $chapter . "<br>";
-  // echo "Versículo: " . $verse . "<br>";
-
-  // $homeController = new HomeController();
-  // $homeController->index();
+  $versesController = new VersesController();
+  $versesController->show($version, $book, $chapter, $verse);
 });
 
 // Rota de acesso a mais de uma versão. Ex: ara+ara/gn/1/1
@@ -88,6 +83,12 @@ $routes->add('/^([a-z]+)\/([a-z]+)\/([0-9]+)\/([0-9]+)-([0-9]+)$/', function ($v
 
   // $homeController = new HomeController();
   // $homeController->index();
+});
+
+// Rota de busca. Ex: search?query=palavra&version=ARA
+$routes->add('/^search$/', function () {
+  $searchController = new SearchController();
+  $searchController->index();
 });
 
 global $routes;

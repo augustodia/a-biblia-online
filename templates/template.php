@@ -211,6 +211,11 @@ $SELECTED_VERSION_INDEX = array_search($data['selectedVersion'], array_column($d
           <?php endforeach; ?>
         </ul>
       </div>
+      <form action="<?php echo BASE_URL; ?>search" method="GET">
+        <input type="text" name="query" placeholder="Search..." required>
+        <input type="hidden" name="version" value="<?php echo $data['selectedVersion']; ?>">
+        <button type="submit">Search</button>
+      </form>
     </header>
     <div class="book-list">
       <h3>Livros da Bíblia</h3>
