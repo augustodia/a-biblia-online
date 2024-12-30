@@ -30,6 +30,13 @@ class Routes
 }
 
 $routes = new Routes();
+
+// Rota de pesquisa. Ex: /search
+$routes->add('/^\/search$/', function () {
+  $searchController = new SearchController();
+  $searchController->search();
+});
+
 // Rota Home
 $routes->add('/^\/$/', function () {
   $homeController = new HomeController();
@@ -88,12 +95,6 @@ $routes->add('/^([a-z]+)\/([a-z]+)\/([0-9]+)\/([0-9]+)-([0-9]+)$/', function ($v
 
   // $homeController = new HomeController();
   // $homeController->index();
-});
-
-// Rota de pesquisa. Ex: /search
-$routes->add('/^\/search$/', function () {
-  $searchController = new SearchController();
-  $searchController->search();
 });
 
 global $routes;
