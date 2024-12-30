@@ -90,4 +90,10 @@ $routes->add('/^([a-z]+)\/([a-z]+)\/([0-9]+)\/([0-9]+)-([0-9]+)$/', function ($v
   // $homeController->index();
 });
 
+// Rota de pesquisa. Ex: /search
+$routes->add('/^\/search$/', function () {
+  $searchController = new SearchController();
+  $searchController->search();
+});
+
 global $routes;
