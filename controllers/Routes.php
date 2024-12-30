@@ -30,6 +30,13 @@ class Routes
 }
 
 $routes = new Routes();
+
+// Rota de pesquisa. Ex: /search
+$routes->add('/^\/search$/', function () {
+  $searchController = new SearchController();
+  $searchController->search();
+});
+
 // Rota Home
 $routes->add('/^\/$/', function () {
   $homeController = new HomeController();

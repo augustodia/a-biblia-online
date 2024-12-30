@@ -147,8 +147,6 @@ $SELECTED_VERSION_INDEX = array_search($data['selectedVersion'], array_column($d
       color: #FFF;
     }
 
-
-
     .book-list {
       margin-top: 200px;
       width: 100%;
@@ -191,6 +189,33 @@ $SELECTED_VERSION_INDEX = array_search($data['selectedVersion'], array_column($d
         padding: 10px;
       }
     }
+
+    .search-container {
+      margin-top: 20px;
+      width: 100%;
+    }
+
+    .search-container input[type="text"] {
+      width: calc(100% - 40px);
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+
+    .search-container button {
+      width: 40px;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      background-color: #3c77c1;
+      color: #FFF;
+      cursor: pointer;
+    }
+
+    .search-container button:hover {
+      background-color: #4e8ed1;
+    }
   </style>
 </head>
 
@@ -210,6 +235,13 @@ $SELECTED_VERSION_INDEX = array_search($data['selectedVersion'], array_column($d
             <li><a href="<?php echo BASE_URL . strtolower($version['sigla']); ?>"><?php echo $version['nome']; ?></a></li>
           <?php endforeach; ?>
         </ul>
+      </div>
+      <div class="search-container">
+        <form action="<?php echo BASE_URL; ?>search" method="get">
+          <input type="text" name="query" placeholder="Pesquisar...">
+          <input type="hidden" name="version" value="<?php echo $data['selectedVersion']; ?>">
+          <button type="submit"><i class="fas fa-search"></i></button>
+        </form>
       </div>
     </header>
     <div class="book-list">
