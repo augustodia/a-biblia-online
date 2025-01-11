@@ -1,4 +1,7 @@
 <?php
+define('SEARCH_PATH', 'search/');
+define('PAGE_PARAM', '&page=');
+
 // Organizar resultados por livro e capítulo
 $organizedResults = [];
 if (!empty($data['results'])) {
@@ -48,7 +51,7 @@ if (!empty($data['results'])) {
         <?php if ($data['pagination']['totalPages'] > 1): ?>
             <div class="pagination">
                 <?php if ($data['pagination']['currentPage'] > 1): ?>
-                    <a href="<?php echo BASE_URL . 'search/' . $data['selectedVersion'] . '?q=' . urlencode($data['searchTerm']) . '&page=' . ($data['pagination']['currentPage'] - 1); ?>" class="page-link">
+                    <a href="<?php echo BASE_URL . SEARCH_PATH . $data['selectedVersion'] . '?q=' . urlencode($data['searchTerm']) . PAGE_PARAM . ($data['pagination']['currentPage'] - 1); ?>" class="page-link">
                         <i class="fas fa-chevron-left"></i> Anterior
                     </a>
                 <?php endif; ?>
@@ -59,14 +62,14 @@ if (!empty($data['results'])) {
                     $end = min($data['pagination']['totalPages'], $data['pagination']['currentPage'] + 2);
                     
                     if ($start > 1): ?>
-                        <a href="<?php echo BASE_URL . 'search/' . $data['selectedVersion'] . '?q=' . urlencode($data['searchTerm']) . '&page=1'; ?>" class="page-link">1</a>
+                        <a href="<?php echo BASE_URL . SEARCH_PATH . $data['selectedVersion'] . '?q=' . urlencode($data['searchTerm']) . PAGE_PARAM . '1'; ?>" class="page-link">1</a>
                         <?php if ($start > 2): ?>
                             <span class="page-ellipsis">...</span>
                         <?php endif; ?>
                     <?php endif; ?>
 
                     <?php for ($i = $start; $i <= $end; $i++): ?>
-                        <a href="<?php echo BASE_URL . 'search/' . $data['selectedVersion'] . '?q=' . urlencode($data['searchTerm']) . '&page=' . $i; ?>" 
+                        <a href="<?php echo BASE_URL . SEARCH_PATH . $data['selectedVersion'] . '?q=' . urlencode($data['searchTerm']) . PAGE_PARAM . $i; ?>"
                            class="page-link <?php echo $i === $data['pagination']['currentPage'] ? 'active' : ''; ?>">
                             <?php echo $i; ?>
                         </a>
@@ -76,14 +79,14 @@ if (!empty($data['results'])) {
                         <?php if ($end < $data['pagination']['totalPages'] - 1): ?>
                             <span class="page-ellipsis">...</span>
                         <?php endif; ?>
-                        <a href="<?php echo BASE_URL . 'search/' . $data['selectedVersion'] . '?q=' . urlencode($data['searchTerm']) . '&page=' . $data['pagination']['totalPages']; ?>" class="page-link">
+                        <a href="<?php echo BASE_URL . SEARCH_PATH . $data['selectedVersion'] . '?q=' . urlencode($data['searchTerm']) . PAGE_PARAM . $data['pagination']['totalPages']; ?>" class="page-link">
                             <?php echo $data['pagination']['totalPages']; ?>
                         </a>
                     <?php endif; ?>
                 </div>
 
                 <?php if ($data['pagination']['currentPage'] < $data['pagination']['totalPages']): ?>
-                    <a href="<?php echo BASE_URL . 'search/' . $data['selectedVersion'] . '?q=' . urlencode($data['searchTerm']) . '&page=' . ($data['pagination']['currentPage'] + 1); ?>" class="page-link">
+                    <a href="<?php echo BASE_URL . SEARCH_PATH . $data['selectedVersion'] . '?q=' . urlencode($data['searchTerm']) . PAGE_PARAM . ($data['pagination']['currentPage'] + 1); ?>" class="page-link">
                         Próxima <i class="fas fa-chevron-right"></i>
                     </a>
                 <?php endif; ?>

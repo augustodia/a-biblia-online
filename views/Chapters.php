@@ -1,3 +1,4 @@
+
 <div class="chapters-container">
     <div class="chapters-header">
         <h2><?php echo $data['books'][array_search($data['book'], array_column($data['books'], 'sigla'))]['nome']; ?></h2>
@@ -8,7 +9,7 @@
 
     <div class="chapters-grid">
         <?php foreach ($data['chapters'] as $chapter) : ?>
-            <a href="<?php echo BASE_URL . $data['selectedVersion'] . '/' . $data['book'] . '/' . $chapter['capitulo']; ?>" 
+            <a href="<?php echo BASE_URL . $data['selectedVersion'] . '/' . $data['book'] . '/' . $chapter['capitulo']; ?>"
                class="chapter-card">
                 <span class="chapter-number"><?php echo $chapter['capitulo']; ?></span>
             </a>

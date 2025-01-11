@@ -1,3 +1,4 @@
+
 <div class="verses-container">
     <div class="verses-header">
         <h2><?php echo $data['books'][array_search($data['book'], array_column($data['books'], 'sigla'))]['nome']; ?> <?php echo $data['chapter']; ?></h2>

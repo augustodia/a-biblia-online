@@ -1,11 +1,7 @@
+
 <?php
 $SELECTED_VERSION_INDEX = array_search($data['selectedVersion'], array_column($data['versions'], 'sigla'));
 
-// echo '<pre>';
-// print_r($data['versions']);
-// echo '</pre>';
-// echo $data['selectedVersion'];
-// echo $SELECTED_VERSION_INDEX;
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -425,10 +421,10 @@ $SELECTED_VERSION_INDEX = array_search($data['selectedVersion'], array_column($d
       <div class="separator"></div>
       <div class="search-bar">
         <form method="GET" action="<?php echo BASE_URL; ?>search/<?php echo $data['selectedVersion']; ?>">
-          <input 
-            type="text" 
-            name="q" 
-            value="<?php echo isset($_GET['q']) ? htmlspecialchars($_GET['q']) : ''; ?>" 
+          <input
+            type="text"
+            name="q"
+            value="<?php echo isset($_GET['q']) ? htmlspecialchars($_GET['q']) : ''; ?>"
             placeholder="Buscar"
             required
           >

@@ -1,10 +1,12 @@
+
 <?php
 class VersesModel extends BaseModel
 {
   protected $db;
   protected $table = 'versiculos';
   protected $primaryKey = 'id';
-  protected $resultsPerPage = 50; // Quantidade de resultados por página
+  protected $resultsPerPage = 50;
+  private const BASE_SELECT = 'SELECT v.*, l.sigla as book, l.nome as book_name FROM versiculos v INNER JOIN livros l ON v.livro_id = l.id';
 
   public function __construct()
   {
@@ -21,14 +23,7 @@ class VersesModel extends BaseModel
 
   public function searchVerses(String $version, String $searchTerm, int $page = 1)
   {
-    // Primeiro, vamos pegar o total de resultados
-    $countQuery = $this->db->prepare('
-      SELECT COUNT(*) as total
-      FROM ' . $this->table . ' v
-      INNER JOIN livros l ON v.livro_id = l.id
-      WHERE v.texto LIKE :searchTerm 
-      AND v.versao_id = (SELECT id FROM versoes WHERE sigla = :version)
-    ');
+    $countQuery = $this->db->prepare('SELECT COUNT(*) as total FROM ' . $this->table . ' v INNER JOIN livros l ON v.livro_id = l.id WHERE v.texto LIKE :searchTerm AND v.versao_id = (SELECT id FROM versoes WHERE sigla = :version)');
     
     $countQuery->execute([
       'searchTerm' => '%' . $searchTerm . '%',
@@ -39,16 +34,7 @@ class VersesModel extends BaseModel
     $totalPages = ceil($totalResults / $this->resultsPerPage);
     $offset = ($page - 1) * $this->resultsPerPage;
 
-    // Agora pegamos os resultados da página atual
-    $query = $this->db->prepare('
-      SELECT v.*, l.sigla as book, l.nome as book_name 
-      FROM ' . $this->table . ' v
-      INNER JOIN livros l ON v.livro_id = l.id
-      WHERE v.texto LIKE :searchTerm 
-      AND v.versao_id = (SELECT id FROM versoes WHERE sigla = :version)
-      ORDER BY l.id, v.capitulo, v.versiculo
-      LIMIT :limit OFFSET :offset
-    ');
+    $query = $this->db->prepare(self::BASE_SELECT . ' WHERE v.texto LIKE :searchTerm AND v.versao_id = (SELECT id FROM versoes WHERE sigla = :version) ORDER BY l.id, v.capitulo, v.versiculo LIMIT :limit OFFSET :offset');
     
     $query->bindValue(':searchTerm', '%' . $searchTerm . '%', PDO::PARAM_STR);
     $query->bindValue(':version', $version, PDO::PARAM_STR);
@@ -69,16 +55,7 @@ class VersesModel extends BaseModel
 
   public function getVerseWithContext(String $version, String $bookAcronym, int $chapter, int $verse)
   {
-    // Buscar o versículo atual com informações do livro
-    $query = $this->db->prepare('
-      SELECT v.*, l.sigla as book, l.nome as book_name 
-      FROM ' . $this->table . ' v
-      INNER JOIN livros l ON v.livro_id = l.id
-      WHERE v.capitulo = :chapter 
-      AND v.versiculo = :verse
-      AND l.sigla = :bookAcronym
-      AND v.versao_id = (SELECT id FROM versoes WHERE sigla = :version)
-    ');
+    $query = $this->db->prepare(self::BASE_SELECT . ' WHERE v.capitulo = :chapter AND v.versiculo = :verse AND l.sigla = :bookAcronym AND v.versao_id = (SELECT id FROM versoes WHERE sigla = :version)');
     
     $query->execute([
       'chapter' => $chapter,
@@ -89,18 +66,7 @@ class VersesModel extends BaseModel
     
     $currentVerse = $query->fetch();
 
-    // Buscar 3 versículos anteriores
-    $previousQuery = $this->db->prepare('
-      SELECT v.*, l.sigla as book, l.nome as book_name 
-      FROM ' . $this->table . ' v
-      INNER JOIN livros l ON v.livro_id = l.id
-      WHERE v.capitulo = :chapter 
-      AND v.versiculo < :verse
-      AND l.sigla = :bookAcronym
-      AND v.versao_id = (SELECT id FROM versoes WHERE sigla = :version)
-      ORDER BY v.versiculo DESC
-      LIMIT 3
-    ');
+    $previousQuery = $this->db->prepare(self::BASE_SELECT . ' WHERE v.capitulo = :chapter AND v.versiculo < :verse AND l.sigla = :bookAcronym AND v.versao_id = (SELECT id FROM versoes WHERE sigla = :version) ORDER BY v.versiculo DESC LIMIT 3');
     
     $previousQuery->execute([
       'chapter' => $chapter,
@@ -111,18 +77,7 @@ class VersesModel extends BaseModel
     
     $previousVerses = array_reverse($previousQuery->fetchAll());
 
-    // Buscar 3 versículos seguintes
-    $nextQuery = $this->db->prepare('
-      SELECT v.*, l.sigla as book, l.nome as book_name 
-      FROM ' . $this->table . ' v
-      INNER JOIN livros l ON v.livro_id = l.id
-      WHERE v.capitulo = :chapter 
-      AND v.versiculo > :verse
-      AND l.sigla = :bookAcronym
-      AND v.versao_id = (SELECT id FROM versoes WHERE sigla = :version)
-      ORDER BY v.versiculo ASC
-      LIMIT 3
-    ');
+    $nextQuery = $this->db->prepare(self::BASE_SELECT . ' WHERE v.capitulo = :chapter AND v.versiculo > :verse AND l.sigla = :bookAcronym AND v.versao_id = (SELECT id FROM versoes WHERE sigla = :version) ORDER BY v.versiculo ASC LIMIT 3');
     
     $nextQuery->execute([
       'chapter' => $chapter,
@@ -140,11 +95,3 @@ class VersesModel extends BaseModel
     ];
   }
 }
-
-
-// 1	id Primária	int(10)		UNSIGNED	Não	Nenhum		AUTO_INCREMENT	Alterar Alterar	Eliminar Eliminar	
-// 2	versao_id Índice	tinyint(3)		UNSIGNED	Não	Nenhum			Alterar Alterar	Eliminar Eliminar	
-// 3	livro_id Índice	tinyint(3)		UNSIGNED	Não	Nenhum			Alterar Alterar	Eliminar Eliminar	
-// 4	capitulo Índice	tinyint(3)		UNSIGNED	Não	Nenhum			Alterar Alterar	Eliminar Eliminar	
-// 5	versiculo Índice	tinyint(3)		UNSIGNED	Não	Nenhum			Alterar Alterar	Eliminar Eliminar	
-// 6	texto Índice	text	utf8_general_ci		Não	Nenhum			Alterar Alterar	Eliminar Eliminar	

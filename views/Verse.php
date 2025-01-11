@@ -1,3 +1,4 @@
+
 <div class="verse-container">
     <div class="verse-header">
         <h2><?php echo $data['verse']['book_name']; ?> <?php echo $data['verse']['capitulo']; ?>:<?php echo $data['verse']['versiculo']; ?></h2>
@@ -205,4 +206,4 @@
             justify-content: center;
         }
     }
-</style> 
+</style>

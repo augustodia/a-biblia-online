@@ -1,3 +1,4 @@
+
 <?php
 class SearchController extends BaseController
 {
@@ -6,7 +7,9 @@ class SearchController extends BaseController
     $searchTerm = isset($_GET['q']) ? $_GET['q'] : '';
     $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
     
-    if ($currentPage < 1) $currentPage = 1;
+    if ($currentPage < 1) {
+        $currentPage = 1;
+    }
 
     $versesModel = new VersesModel();
     $searchResults = $versesModel->searchVerses($versionAcronym, $searchTerm, $currentPage);
@@ -26,4 +29,4 @@ class SearchController extends BaseController
       'books' => $books
     ]);
   }
-} 
+}

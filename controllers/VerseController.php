@@ -1,3 +1,4 @@
+
 <?php
 class VerseController extends BaseController
 {
@@ -21,4 +22,4 @@ class VerseController extends BaseController
       'books' => $books
     ]);
   }
-} 
+}

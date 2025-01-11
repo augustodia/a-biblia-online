@@ -1,3 +1,4 @@
+
 <div class="home-container">
     <div class="welcome-section">
         <h2>Bem-vindo à Bíblia Online</h2>
