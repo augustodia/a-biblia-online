@@ -13,6 +13,56 @@ class VersesModel extends BaseModel
     $this->db = $db;
   }
 
+  public function getVerse(String $version, String $bookAcronym, int $chapter, int $verse)
+  {
+    $query = $this->db->prepare(self::BASE_SELECT . ' WHERE v.capitulo = :chapter AND v.versiculo = :verse AND l.sigla = :bookAcronym AND v.versao_id = (SELECT id FROM versoes WHERE sigla = :version)');
+    
+    $query->execute([
+      'chapter' => $chapter,
+      'verse' => $verse,
+      'bookAcronym' => $bookAcronym,
+      'version' => $version
+    ]);
+    
+    return $query->fetch(PDO::FETCH_ASSOC);
+  }
+
+  public function getBook(String $bookAcronym)
+  {
+    // Primeiro, buscar informações básicas do livro
+    $query = $this->db->prepare('SELECT * FROM livros WHERE sigla = :bookAcronym');
+    $query->execute(['bookAcronym' => $bookAcronym]);
+    $book = $query->fetch(PDO::FETCH_ASSOC);
+
+    if ($book) {
+      // Depois, buscar a contagem de versículos por capítulo
+      $versesQuery = $this->db->prepare('SELECT capitulo, COUNT(*) as total 
+                                        FROM versiculos 
+                                        WHERE livro_id = :book_id 
+                                        GROUP BY capitulo 
+                                        ORDER BY capitulo');
+      $versesQuery->execute(['book_id' => $book['id']]);
+      $verseCounts = $versesQuery->fetchAll(PDO::FETCH_ASSOC);
+
+      // Criar array com o total de versículos por capítulo
+      $book['versiculos'] = array_column($verseCounts, 'total');
+    }
+
+    return $book;
+  }
+
+  public function getVersions()
+  {
+    $query = $this->db->query('SELECT * FROM versoes ORDER BY id');
+    return $query->fetchAll(PDO::FETCH_ASSOC);
+  }
+
+  public function getBooks()
+  {
+    $query = $this->db->query('SELECT * FROM livros ORDER BY id');
+    return $query->fetchAll(PDO::FETCH_ASSOC);
+  }
+
   public function getAllVerses(String $version, String $bookAcronym, int $chapterNumber)
   {
     $query = $this->db->prepare(self::BASE_SELECT . ' WHERE v.capitulo = :chapterNumber AND l.sigla = :bookAcronym AND v.versao_id = (SELECT id FROM versoes WHERE sigla = :version)');
@@ -42,9 +92,6 @@ class VersesModel extends BaseModel
     $query->execute();
     
     $results = $query->fetchAll();
-    
-    // Log para debug
-    error_log("Resultados da busca: " . print_r($results, true));
     
     return [
       'results' => $results,

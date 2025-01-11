@@ -54,24 +54,25 @@ $routes->add('/^([a-zA-Z]+)\/([0-9]?[a-zA-Z]+)$/', function ($version, $bookAcro
 });
 
 $routes->add('/^([a-zA-Z]+)\/([0-9]?[a-zA-Z]+)\/([0-9]+)$/', function ($versionAcronym, $bookAcronym, $chapterNumber) {
-  $chapterNumber = (int) $chapterNumber;
   $versesController = new VersesController();
   $versesController->index($versionAcronym, $bookAcronym, $chapterNumber);
 });
 
-$routes->add('/^([a-zA-Z]+)\/([0-9]?[a-zA-Z]+)\/([0-9]+)\/([0-9]+)$/', function ($version, $book, $chapter, $verse) {
+$routes->add('/^([a-zA-Z]+)\/([0-9]?[a-zA-Z]+)\/([0-9]+)\/([0-9]+)(?:-([0-9]+))?$/', function ($version, $book, $chapter, $verse, $endVerse = null) {
   $verseController = new VerseController();
-  $verseController->show($version, $book, $chapter, $verse);
+  $verseController->show($version, $book, $chapter, $verse, $endVerse);
 });
 
-// TODO: Implementar comparação de versões
-$routes->add('/^([a-zA-Z]+)\+([a-zA-Z]+)\/([0-9]?[a-zA-Z]+)\/([0-9]+)\/([0-9]+)$/', function ($version1, $version2, $book, $chapter, $verse) {
-  // Implementação futura
+// Rota para comparação de versões
+$routes->add('/^([a-zA-Z]+)\+([a-zA-Z]+)\/([0-9]?[a-zA-Z]+)\/([0-9]+)\/([0-9]+)(?:-([0-9]+))?$/', function ($version1, $version2, $book, $chapter, $verse, $endVerse = null) {
+  $compareController = new CompareController();
+  $compareController->show($version1, $version2, $book, $chapter, $verse, $endVerse);
 });
 
-// TODO: Implementar visualização de múltiplos versículos
+// Rota para visualização de múltiplos versículos
 $routes->add('/^([a-zA-Z]+)\/([0-9]?[a-zA-Z]+)\/([0-9]+)\/([0-9]+)-([0-9]+)$/', function ($version, $book, $chapter, $verse1, $verse2) {
-  // Implementação futura
+  $multiVerseController = new MultiVerseController();
+  $multiVerseController->show($version, $book, $chapter, $verse1, $verse2);
 });
 
 global $routes;

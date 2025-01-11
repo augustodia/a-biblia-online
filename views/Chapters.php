@@ -1,7 +1,14 @@
-
 <div class="chapters-container">
     <div class="chapters-header">
         <h2><?php echo $data['books'][array_search($data['book'], array_column($data['books'], 'sigla'))]['nome']; ?></h2>
+        
+        <!-- Breadcrumb -->
+        <div class="breadcrumb" style="color: var(--text-light); font-size: 0.9em; margin: 10px 0;">
+            <a href="<?php echo BASE_URL; ?>" style="color: var(--primary-color); text-decoration: none;">Início</a> &gt;
+            <a href="<?php echo BASE_URL . $data['selectedVersion']; ?>" style="color: var(--primary-color); text-decoration: none;"><?php echo $data['selectedVersion']; ?></a> &gt;
+            <?php echo $data['books'][array_search($data['book'], array_column($data['books'], 'sigla'))]['nome']; ?>
+        </div>
+
         <p class="chapters-info">
         <?php echo $data['versions'][array_search($data['selectedVersion'], array_column($data['versions'], 'sigla'))]['nome']; ?> - Selecione um capítulo
         </p>
