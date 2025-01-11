@@ -288,15 +288,54 @@ $SELECTED_VERSION_INDEX = array_search($data['selectedVersion'], array_column($d
         height: var(--header-height-mobile);
         background: var(--primary-color);
         align-items: center;
+        justify-content: center;
         padding: 0;
         z-index: 1030;
       }
 
-      .mobile-header h1 {
-        color: white;
+      .mobile-header .home-link {
         font-size: 1.2em;
-        margin-left: 60px;
+        color: #FFF;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 0;
+        line-height: var(--header-height-mobile);
         white-space: nowrap;
+      }
+
+      .menu-toggle {
+        width: var(--header-height-mobile);
+        height: var(--header-height-mobile);
+        position: fixed;
+        top: 0;
+        left: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 1.5em;
+        cursor: pointer;
+        z-index: 1100;
+      }
+
+      .mobile-header h1 {
+        margin: 0;
+        padding: 0;
+      }
+
+      aside {
+        padding-top: 0;
+      }
+
+      .sidebar-header {
+        padding-top: 20px;
+      }
+
+      .sidebar-header h1 {
+        margin-bottom: 15px;
       }
 
       aside {
@@ -312,13 +351,6 @@ $SELECTED_VERSION_INDEX = array_search($data['selectedVersion'], array_column($d
 
       aside.show {
         left: 0;
-      }
-
-      .sidebar-header {
-        position: relative;
-        width: 100%;
-        padding-top: 15px;
-        padding-bottom: 15px;
       }
 
       .book-list {
@@ -444,8 +476,8 @@ $SELECTED_VERSION_INDEX = array_search($data['selectedVersion'], array_column($d
     @media (max-width: 768px) {
       .mobile-header .home-link {
         font-size: 1.2em;
-        margin: 0 auto;
-        padding: 15px;
+        margin: 0;
+        padding: 0;
         display: block;
         text-align: center;
       }
@@ -455,9 +487,12 @@ $SELECTED_VERSION_INDEX = array_search($data['selectedVersion'], array_column($d
         color: #FFF;
       }
 
-      .sidebar-header h1 {
-        margin: 0;
-        padding: 0;
+      .menu-toggle {
+        display: flex;
+      }
+
+      .mobile-header {
+        padding-left: 0;
       }
     }
   </style>
