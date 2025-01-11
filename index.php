@@ -4,6 +4,10 @@ session_cache_limiter('private_no_expire'); // works
 session_cache_limiter('public'); // works too
 session_start();
 
+// // Debug
+// echo "Request URI: " . $_SERVER['REQUEST_URI'] . "<br>";
+// echo "Query string: " . $_SERVER['QUERY_STRING'] . "<br>";
+
 // Exemplo de exclusão de arquivo temporário
 $temp_file = '/path/to/temp/file.txt';
 if (file_exists($temp_file)) {

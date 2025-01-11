@@ -8,6 +8,10 @@ class HomeController extends BaseController
     $books = $booksModel->all();
     $versions = $versionModel->all();
 
-    $this->loadTemplate('Home', ['versions' => $versions, 'books' => $books, 'selectedVersion' => $selectedVersion]);
+    $this->loadTemplate('Home', [
+      'versions' => $versions,
+      'books' => $books,
+      'selectedVersion' => $selectedVersion
+    ]);
   }
 }

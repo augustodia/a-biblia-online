@@ -1,7 +1,7 @@
 <?php
 class VersesController extends BaseController
 {
-  public function index(String $versionAcronym, String $bookAcronym, int $selectedChapter,)
+  public function index(String $versionAcronym, String $bookAcronym, int $selectedChapter)
   {
     $versionsModel = new VersionModel();
     $versions = $versionsModel->all();
@@ -16,7 +16,7 @@ class VersesController extends BaseController
       'verses' => $verses,
       'selectedVersion' => $versionAcronym,
       'book' => $bookAcronym,
-      'selectedChapter' => $selectedChapter,
+      'chapter' => $selectedChapter,
       'versions' => $versions,
       'books' => $books,
       'chapters' => $chapters

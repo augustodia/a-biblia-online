@@ -10,6 +10,12 @@ class ChaptersController extends BaseController
     $chaptersModel = new ChaptersModel();
     $chapters = $chaptersModel->getAllChaptersByBook($bookAcronym);
 
-    $this->loadTemplate('Chapters', ['chapters' => $chapters, 'versions' => $versions, 'selectedVersion' => $version, 'book' => $bookAcronym, 'books' => $books]);
+    $this->loadTemplate('Chapters', [
+      'chapters' => $chapters,
+      'versions' => $versions,
+      'selectedVersion' => $version,
+      'book' => $bookAcronym,
+      'books' => $books
+    ]);
   }
 }
