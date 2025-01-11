@@ -1,4 +1,3 @@
-
 <?php
 class VersesModel extends BaseModel
 {
@@ -16,7 +15,7 @@ class VersesModel extends BaseModel
 
   public function getAllVerses(String $version, String $bookAcronym, int $chapterNumber)
   {
-    $query = $this->db->prepare('SELECT * FROM ' . $this->table . ' WHERE capitulo = :chapterNumber AND livro_id = (SELECT id FROM livros WHERE sigla = :bookAcronym) AND versao_id = (SELECT id FROM versoes WHERE sigla = :version)');
+    $query = $this->db->prepare(self::BASE_SELECT . ' WHERE v.capitulo = :chapterNumber AND l.sigla = :bookAcronym AND v.versao_id = (SELECT id FROM versoes WHERE sigla = :version)');
     $query->execute(['chapterNumber' => $chapterNumber, 'bookAcronym' => $bookAcronym, 'version' => $version]);
     return $query->fetchAll();
   }
@@ -42,8 +41,13 @@ class VersesModel extends BaseModel
     $query->bindValue(':offset', $offset, PDO::PARAM_INT);
     $query->execute();
     
+    $results = $query->fetchAll();
+    
+    // Log para debug
+    error_log("Resultados da busca: " . print_r($results, true));
+    
     return [
-      'results' => $query->fetchAll(),
+      'results' => $results,
       'pagination' => [
         'total' => $totalResults,
         'perPage' => $this->resultsPerPage,

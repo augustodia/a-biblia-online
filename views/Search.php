@@ -2,13 +2,20 @@
 define('SEARCH_PATH', 'search/');
 define('PAGE_PARAM', '&page=');
 
+// Log para debug
+error_log("Dados recebidos na view Search: " . print_r($data, true));
+
 // Organizar resultados por livro e capítulo
 $organizedResults = [];
 if (!empty($data['results'])) {
     foreach ($data['results'] as $verse) {
-        $bookKey = $verse['book_name'];
-        $chapterKey = $verse['capitulo'];
-        $organizedResults[$bookKey][$chapterKey][] = $verse;
+        if (isset($verse['book_name'])) {
+            $bookKey = $verse['book_name'];
+            $chapterKey = $verse['capitulo'];
+            $organizedResults[$bookKey][$chapterKey][] = $verse;
+        } else {
+            error_log("Versículo sem book_name: " . print_r($verse, true));
+        }
     }
 }
 ?>

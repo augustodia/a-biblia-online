@@ -1,4 +1,3 @@
-
 <?php
 class SearchController extends BaseController
 {
@@ -14,19 +13,27 @@ class SearchController extends BaseController
     $versesModel = new VersesModel();
     $searchResults = $versesModel->searchVerses($versionAcronym, $searchTerm, $currentPage);
     
+    // Log para debug
+    error_log("Resultados da busca no controller: " . print_r($searchResults, true));
+    
     // Carregar as versões e livros
     $versionsModel = new VersionModel();
     $versions = $versionsModel->all();
     $booksModel = new BooksModel();
     $books = $booksModel->all();
 
-    $this->loadTemplate('Search', [
+    $viewData = [
       'results' => $searchResults['results'],
       'pagination' => $searchResults['pagination'],
       'selectedVersion' => $versionAcronym,
       'searchTerm' => $searchTerm,
       'versions' => $versions,
       'books' => $books
-    ]);
+    ];
+    
+    // Log para debug
+    error_log("Dados enviados para a view: " . print_r($viewData, true));
+
+    $this->loadTemplate('Search', $viewData);
   }
 }
