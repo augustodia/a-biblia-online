@@ -1,61 +1,37 @@
 <?php
 class VerseController extends BaseController
 {
-  public function show(String $versionAcronym, String $bookAcronym, int $chapter, int $verse, ?int $endVerse = null)
+  public function show($version, $book, $chapter, $verse, $endVerse = null)
   {
     $versesModel = new VersesModel();
-    $versionsModel = new VersionModel();
-    $versions = $versionsModel->all();
     $booksModel = new BooksModel();
-    $books = $booksModel->all();
-    $book = $booksModel->getByAcronym($bookAcronym);
 
-    // Se não foi especificado um endVerse, mostrar 5 versículos por padrão
+    // Se não foi especificado um endVerse, mostrar apenas o versículo atual
     if (!$endVerse) {
       $endVerse = $verse;
     }
 
-    // Buscar os versículos do intervalo
-    $verses = array();
+    // Buscar os versículos no intervalo especificado
+    $verses = [];
     for ($i = $verse; $i <= $endVerse; $i++) {
-      $verseData = $versesModel->getVerse($versionAcronym, $bookAcronym, $chapter, $i);
-      if ($verseData) {
-        $verses[] = $verseData;
-      }
+      $verses[] = $versesModel->getVerse($version, $book, $chapter, $i);
     }
 
-    // Buscar contexto (versículos anteriores e posteriores)
-    $previousVerses = array();
-    if ($verse > 1) {
-      for ($i = max(1, $verse - 2); $i < $verse; $i++) {
-        $verseData = $versesModel->getVerse($versionAcronym, $bookAcronym, $chapter, $i);
-        if ($verseData) {
-          $previousVerses[] = $verseData;
-        }
-      }
-    }
+    $bookData = $booksModel->getBook($book);
+    $totalVerses = $booksModel->getChapterVerses($bookData['id'], $chapter);
 
-    $nextVerses = array();
-    if ($endVerse < ($book['versiculos'][$chapter - 1] ?? PHP_INT_MAX)) {
-      for ($i = $endVerse + 1; $i <= min($endVerse + 2, $book['versiculos'][$chapter - 1]); $i++) {
-        $verseData = $versesModel->getVerse($versionAcronym, $bookAcronym, $chapter, $i);
-        if ($verseData) {
-          $nextVerses[] = $verseData;
-        }
-      }
-    }
-
-    $this->loadTemplate('Verse', [
-      'verses' => $verses,
-      'previousVerses' => $previousVerses,
-      'nextVerses' => $nextVerses,
-      'selectedVersion' => $versionAcronym,
-      'versions' => $versions,
-      'books' => $books,
-      'book' => $book,
+    $data = array(
+      'versions' => $versesModel->getVersions(),
+      'books' => $versesModel->getBooks(),
+      'selectedVersion' => $version,
+      'book' => $bookData,
       'chapter' => $chapter,
       'startVerse' => $verse,
-      'endVerse' => $endVerse
-    ]);
+      'endVerse' => $endVerse,
+      'verses' => $verses,
+      'totalVerses' => $totalVerses
+    );
+
+    $this->loadTemplate('Verse', $data);
   }
 }

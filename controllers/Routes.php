@@ -64,7 +64,7 @@ $routes->add('/^([a-zA-Z]+)\/([0-9]?[a-zA-Z]+)\/([0-9]+)\/([0-9]+)(?:-([0-9]+))?
 });
 
 // Rota para comparação de versões
-$routes->add('/^([a-zA-Z]+)\+([a-zA-Z]+)\/([0-9]?[a-zA-Z]+)\/([0-9]+)\/([0-9]+)(?:-([0-9]+))?$/', function ($version1, $version2, $book, $chapter, $verse, $endVerse = null) {
+$routes->add('/^([a-zA-Z]+)[ +]([a-zA-Z]+)\/([0-9]?[a-zA-Z]+)\/([0-9]+)\/([0-9]+)(?:-([0-9]+))?$/', function ($version1, $version2, $book, $chapter, $verse, $endVerse = null) {
   $compareController = new CompareController();
   $compareController->show($version1, $version2, $book, $chapter, $verse, $endVerse);
 });

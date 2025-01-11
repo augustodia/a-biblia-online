@@ -49,20 +49,6 @@ $firstVerse = reset($verses);
     </div>
 
     <div class="verse-content">
-        <!-- Versículos anteriores -->
-        <?php if (!empty($data['previousVerses'])): ?>
-            <div class="context-verses previous-verses">
-                <?php foreach ($data['previousVerses'] as $verse): ?>
-                    <div class="context-verse">
-                        <a href="<?php echo BASE_URL . $data['selectedVersion'] . '/' . $verse['book'] . '/' . $verse['capitulo'] . '/' . $verse['versiculo']; ?>">
-                            <span class="verse-number"><?php echo $verse['versiculo']; ?></span>
-                            <span class="verse-text"><?php echo $verse['texto']; ?></span>
-                        </a>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
-
         <!-- Versículos atuais -->
         <?php foreach ($verses as $verse): ?>
             <div class="current-verse">
@@ -74,30 +60,16 @@ $firstVerse = reset($verses);
                 </div>
             </div>
         <?php endforeach; ?>
-
-        <!-- Versículos seguintes -->
-        <?php if (!empty($data['nextVerses'])): ?>
-            <div class="context-verses next-verses">
-                <?php foreach ($data['nextVerses'] as $verse): ?>
-                    <div class="context-verse">
-                        <a href="<?php echo BASE_URL . $data['selectedVersion'] . '/' . $verse['book'] . '/' . $verse['capitulo'] . '/' . $verse['versiculo']; ?>">
-                            <span class="verse-number"><?php echo $verse['versiculo']; ?></span>
-                            <span class="verse-text"><?php echo $verse['texto']; ?></span>
-                        </a>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
     </div>
 
     <div class="verse-navigation">
-        <?php if (!empty($data['previousVerses'])): ?>
+        <?php if ($data['startVerse'] > 1): ?>
             <a href="<?php echo BASE_URL . $data['selectedVersion'] . '/' . $book['sigla'] . '/' . $data['chapter'] . '/' . ($data['startVerse'] - 1); ?>" class="nav-link">
                 <i class="fas fa-chevron-left"></i> Versículo anterior
             </a>
         <?php endif; ?>
 
-        <?php if (!empty($data['nextVerses'])): ?>
+        <?php if ($data['endVerse'] < $book['versiculos'][$data['chapter'] - 1]): ?>
             <a href="<?php echo BASE_URL . $data['selectedVersion'] . '/' . $book['sigla'] . '/' . $data['chapter'] . '/' . ($data['endVerse'] + 1); ?>" class="nav-link">
                 Próximo versículo <i class="fas fa-chevron-right"></i>
             </a>
@@ -136,33 +108,6 @@ $firstVerse = reset($verses);
         margin-bottom: 20px;
     }
 
-    .context-verses {
-        padding: 15px;
-        background: #f8f9fa;
-    }
-
-    .context-verse {
-        padding: 10px;
-        border-bottom: 1px solid #eee;
-    }
-
-    .context-verse:last-child {
-        border-bottom: none;
-    }
-
-    .context-verse a {
-        display: flex;
-        align-items: flex-start;
-        color: #666;
-        text-decoration: none;
-        transition: color 0.2s;
-        gap: 15px;
-    }
-
-    .context-verse a:hover {
-        color: #2e4a7b;
-    }
-
     .verse-number {
         color: #2e4a7b;
         font-weight: bold;
@@ -177,7 +122,11 @@ $firstVerse = reset($verses);
     .current-verse {
         padding: 30px;
         background: #fff;
-        border-left: 4px solid #2e4a7b;
+        border-bottom: 1px solid #eee;
+    }
+
+    .current-verse:last-child {
+        border-bottom: none;
     }
 
     .verse-content-wrapper {
@@ -287,10 +236,6 @@ $firstVerse = reset($verses);
 
         .current-verse .verse-text {
             font-size: 1.1em;
-        }
-
-        .context-verse a {
-            gap: 12px;
         }
 
         .verse-navigation {
