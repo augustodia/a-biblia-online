@@ -11,6 +11,12 @@
 </IfModule>
 
 # Cache para sitemaps
-<FilesMatch "sitemap.*\.xml$">
+<FilesMatch "^sitemap.*\.xml$">
     Header set Cache-Control "max-age=86400, public"
+</FilesMatch>
+
+# Prevenir acesso direto a outros arquivos
+<FilesMatch "^(?!sitemap.*\.xml$).*$">
+    Order deny,allow
+    Deny from all
 </FilesMatch> 

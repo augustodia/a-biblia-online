@@ -12,4 +12,4 @@ Allow: /sitemaps/*.xml
 Crawl-delay: 10
 
 # Sitemaps
-Sitemap: https://abibliaonline.com//sitemap.xml 
+Sitemap: https://abibliaonline.com/sitemap.xml 
