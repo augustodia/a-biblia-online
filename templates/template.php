@@ -1,4 +1,3 @@
-
 <?php
 $SELECTED_VERSION_INDEX = array_search($data['selectedVersion'], array_column($data['versions'], 'sigla'));
 
@@ -366,7 +365,7 @@ $SELECTED_VERSION_INDEX = array_search($data['selectedVersion'], array_column($d
       display: none;
       position: absolute;
       top: 15px;
-      right: 15px;
+      right: 0px;
       padding: 10px;
       color: white;
       background: rgba(255,255,255,0.1);
@@ -384,6 +383,14 @@ $SELECTED_VERSION_INDEX = array_search($data['selectedVersion'], array_column($d
       aside.show .close-menu {
         display: block;
       }
+    }
+
+    .collapse li a.active {
+      background-color: var(--primary-hover);
+    }
+
+    .search-bar {
+      margin: 15px 0;
     }
   </style>
 </head>
@@ -408,13 +415,26 @@ $SELECTED_VERSION_INDEX = array_search($data['selectedVersion'], array_column($d
       <div class="separator"></div>
       <h3 class="version-title">Versão</h3>
       <a href="#" class="selected-version">
-        <?php echo $data['versions'][$SELECTED_VERSION_INDEX]['nome']; ?>
+        <?php 
+        $selectedVersionName = '';
+        foreach ($data['versions'] as $version) {
+          if ($version['sigla'] === $data['selectedVersion']) {
+            $selectedVersionName = $version['nome'];
+            break;
+          }
+        }
+        echo $selectedVersionName;
+        ?>
         <i class="fas fa-chevron-down" style="margin-left: 2px" ;></i>
       </a>
       <div class="collapse">
         <ul>
           <?php foreach ($data['versions'] as $version) : ?>
-            <li><a href="<?php echo BASE_URL . strtolower($version['sigla']); ?>"><?php echo $version['nome']; ?></a></li>
+            <li>
+              <a href="<?php echo BASE_URL . $version['sigla']; ?>" <?php echo ($version['sigla'] === $data['selectedVersion']) ? 'class="active"' : ''; ?>>
+                <?php echo $version['nome']; ?>
+              </a>
+            </li>
           <?php endforeach; ?>
         </ul>
       </div>
@@ -439,7 +459,7 @@ $SELECTED_VERSION_INDEX = array_search($data['selectedVersion'], array_column($d
       <ul>
         <?php foreach ($data['books'] as $book) : ?>
           <li>
-            <a href="<?php echo BASE_URL . $data['versions'][$SELECTED_VERSION_INDEX]['sigla'] . '/' . $book['sigla']; ?>">
+            <a href="<?php echo BASE_URL . $data['selectedVersion'] . '/' . $book['sigla']; ?>">
               <?php echo $book['nome']; ?>
             </a>
           </li>
@@ -470,9 +490,9 @@ $SELECTED_VERSION_INDEX = array_search($data['selectedVersion'], array_column($d
       menuToggle.style.display = sidebar.classList.contains('show') ? 'none' : 'flex';
     }
 
-    // Fechar menu ao clicar em um link
-    const sidebarLinks = sidebar.querySelectorAll('a');
-    sidebarLinks.forEach(link => {
+    // Fechar menu ao clicar em um link dos livros
+    const bookLinks = document.querySelectorAll('.book-list a');
+    bookLinks.forEach(link => {
       link.addEventListener('click', () => {
         if (window.innerWidth <= 768) {
           toggleMenu();
