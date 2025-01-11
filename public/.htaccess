@@ -1,0 +1,16 @@
+# Permite acesso aos arquivos XML
+<Files ~ "\.(xml)$">
+    Order allow,deny
+    Allow from all
+</Files>
+
+# Compressão GZIP para XML
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE text/xml
+</IfModule>
+
+# Cache para sitemaps
+<FilesMatch "sitemap.*\.xml$">
+    Header set Cache-Control "max-age=86400, public"
+</FilesMatch> 

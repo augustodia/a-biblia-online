@@ -5,6 +5,15 @@ RewriteBase /mvc/
 RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
 RewriteRule ^(.*)$ http://%1/$1 [R=301,L]
 
+# Permitir acesso aos sitemaps
+RewriteRule ^sitemap\.xml$ public/sitemap.xml [L]
+RewriteRule ^sitemaps/sitemap-([^/]+)\.xml$ public/sitemaps/sitemap-$1.xml [L]
+
+# Proteção da pasta commands
+RewriteCond %{REQUEST_URI} ^/mvc/commands/
+RewriteCond %{REQUEST_URI} !^/mvc/commands/(GenerateSitemap\.php|analise\.php)$
+RewriteRule ^ - [F]
+
 # Redirecionar todas as requisições para index.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
@@ -14,7 +23,7 @@ RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
 Options -Indexes
 
 # Proteção contra acesso a arquivos sensíveis
-<FilesMatch "^(generate-sitemap\.php|\.env|\.config|\.json|\.lock|\.sql|\.md)$">
+<FilesMatch "^(\.env|\.config|\.json|\.lock|\.sql|\.md)$">
     Order allow,deny
     Deny from all
 </FilesMatch>
@@ -23,12 +32,6 @@ Options -Indexes
     Order allow,deny
     Deny from all
 </FilesMatch>
-
-# Proteção contra acesso à pasta commands
-<DirectoryMatch "^/commands/">
-    Order allow,deny
-    Deny from all
-</DirectoryMatch>
 
 # Headers de segurança
 <IfModule mod_headers.c>
