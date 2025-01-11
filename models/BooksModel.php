@@ -79,9 +79,6 @@ class BooksModel extends BaseModel
     ]);
     
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    $total = (int)$result['total'];
-    
-    return $total;
+    return (int)$result['total'];
   }
 }

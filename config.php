@@ -43,4 +43,13 @@ try {
         die('Erro interno do servidor. Por favor, tente novamente mais tarde.');
     }
 }
+
+// Obtém o protocolo (http ou https)
+$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+
+// Obtém o host atual (seja localhost ou o domínio do localtunnel)
+$host = $_SERVER['HTTP_HOST'];
+
+// Define a BASE_URL
+define('BASE_URL', $protocol . $host . '/mvc/');
 ?>

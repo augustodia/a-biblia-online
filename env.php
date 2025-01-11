@@ -1,7 +1,6 @@
 <?php
 // Configurações de ambiente
 define('ENVIRONMENT', 'development'); // 'development' ou 'production'
-define('BASE_URL', 'http://localhost/mvc/');
 
 // Configurações do banco de dados
 define('DB_HOST', 'localhost');

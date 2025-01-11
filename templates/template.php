@@ -392,6 +392,44 @@ $SELECTED_VERSION_INDEX = array_search($data['selectedVersion'], array_column($d
     .search-bar {
       margin: 15px 0;
     }
+
+    .home-link {
+      text-decoration: none;
+      color: #FFF !important;
+      font-weight: bold;
+      transition: color 0.3s ease;
+      display: inline-block;
+    }
+
+    .home-link:hover {
+      color: rgba(255, 255, 255, 0.9) !important;
+      text-decoration: none;
+    }
+
+    .home-link:active {
+      transform: scale(0.98);
+    }
+
+    /* Ajustes para mobile */
+    @media (max-width: 768px) {
+      .mobile-header .home-link {
+        font-size: 1.2em;
+        margin: 0 auto;
+        padding: 15px;
+        display: block;
+        text-align: center;
+      }
+      
+      .sidebar-header .home-link {
+        font-size: 1.2em;
+        color: #FFF;
+      }
+
+      .sidebar-header h1 {
+        margin: 0;
+        padding: 0;
+      }
+    }
   </style>
 </head>
 
@@ -401,7 +439,7 @@ $SELECTED_VERSION_INDEX = array_search($data['selectedVersion'], array_column($d
   </button>
 
   <div class="mobile-header">
-    <h1>A Bíblia Online</h1>
+    <a href="<?php echo BASE_URL; ?>" class="home-link">A Bíblia Online</a>
   </div>
 
   <div class="overlay"></div>
@@ -411,7 +449,7 @@ $SELECTED_VERSION_INDEX = array_search($data['selectedVersion'], array_column($d
       <button class="close-menu">
         <i class="fas fa-times"></i>
       </button>
-      <h1>A Bíblia Online</h1>
+      <h1><a href="<?php echo BASE_URL; ?>" class="home-link">A Bíblia Online</a></h1>
       <div class="separator"></div>
       <h3 class="version-title">Versão</h3>
       <a href="#" class="selected-version">
