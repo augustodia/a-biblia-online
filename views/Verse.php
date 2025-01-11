@@ -76,14 +76,6 @@ $firstVerse = reset($verses);
             </a>
         <?php endif; ?>
     </div>
-
-    <!-- Debug info (temporário) -->
-    <div style="margin-top: 20px; font-size: 12px; color: #666;">
-        Debug: 
-        Start: <?php echo $data['startVerse']; ?>, 
-        End: <?php echo $data['endVerse']; ?>, 
-        Total: <?php echo $data['totalVerses']; ?>
-    </div>
 </div>
 
 <style>

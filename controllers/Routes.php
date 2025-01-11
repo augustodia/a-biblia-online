@@ -3,7 +3,6 @@
 class Routes
 {
   private $routes = array();
-  private $debug = [];
 
   public function add($route, $callback, $method = 'GET')
   {

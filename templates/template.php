@@ -270,26 +270,7 @@ $SELECTED_VERSION_INDEX = array_search($data['selectedVersion'], array_column($d
     }
 
     .mobile-header {
-      display: flex;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: var(--header-height-mobile);
-      background: var(--primary-color);
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-      z-index: 1030;
-    }
-
-    .mobile-header .home-link {
-      font-size: 1.2em;
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 15px;
-      white-space: nowrap;
+      display: none;
     }
 
     @media (max-width: 768px) {
@@ -307,15 +288,20 @@ $SELECTED_VERSION_INDEX = array_search($data['selectedVersion'], array_column($d
         height: var(--header-height-mobile);
         background: var(--primary-color);
         align-items: center;
+        justify-content: center;
         padding: 0;
         z-index: 1030;
       }
 
-      .mobile-header h1 {
-        color: white;
+      .mobile-header .home-link {
         font-size: 1.2em;
-        margin-left: 60px;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 15px;
         white-space: nowrap;
+        color: #FFF;
+        text-decoration: none;
       }
 
       aside {
