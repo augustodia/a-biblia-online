@@ -3,6 +3,7 @@
 class Routes
 {
   private $routes = array();
+  private $debug = [];
 
   public function add($route, $callback, $method = 'GET')
   {
@@ -18,13 +19,25 @@ class Routes
     $url = isset($_GET['url']) ? rawurldecode($_GET['url']) : '/';
     $method = $_SERVER['REQUEST_METHOD'];
     
+    // Debug
+    $this->debug[] = "URL recebida: " . $url;
+    
     foreach ($this->routes as $route) {
+      $this->debug[] = "Testando rota: " . $route['route'];
       if ($route['method'] === $method && preg_match($route['route'], $url, $params)) {
+        $this->debug[] = "Match encontrado! Params: " . print_r($params, true);
         array_shift($params);
         return call_user_func_array($route['callback'], $params);
       }
     }
 
+    $this->debug[] = "Nenhuma rota encontrada para a URL: " . $url;
+    
+    // Exibe os logs antes do 404
+    echo "<pre>LOGS DE DEBUG:\n\n";
+    echo implode("\n", $this->debug);
+    echo "</pre>";
+    
     header("HTTP/1.0 404 Not Found");
     echo "404 - Página não encontrada";
   }
@@ -58,15 +71,22 @@ $routes->add('/^([a-zA-Z]+)\/([0-9]?[a-zA-Z]+)\/([0-9]+)$/', function ($versionA
   $versesController->index($versionAcronym, $bookAcronym, $chapterNumber);
 });
 
-$routes->add('/^([a-zA-Z]+)\/([0-9]?[a-zA-Z]+)\/([0-9]+)\/([0-9]+)(?:-([0-9]+))?$/', function ($version, $book, $chapter, $verse, $endVerse = null) {
-  $verseController = new VerseController();
-  $verseController->show($version, $book, $chapter, $verse, $endVerse);
+// Rota para comparação de versões (com ou sem range)
+$routes->add('/^([a-zA-Z]+[ +][a-zA-Z]+)\/([0-9]?[a-zA-Z]+)\/([0-9]+)\/([0-9]+)(?:-([0-9]+))?$/', function ($versions, $bookAcronym, $chapterNumber, $verseNumber, $endVerseNumber = null) {
+  $compareController = new CompareController();
+  $compareController->show(
+    str_replace(' ', '+', $versions),
+    $bookAcronym, 
+    (int)$chapterNumber, 
+    (int)$verseNumber, 
+    $endVerseNumber ? (int)$endVerseNumber : null
+  );
 });
 
-// Rota para comparação de versões
-$routes->add('/^([a-zA-Z]+)[ +]([a-zA-Z]+)\/([0-9]?[a-zA-Z]+)\/([0-9]+)\/([0-9]+)(?:-([0-9]+))?$/', function ($version1, $version2, $book, $chapter, $verse, $endVerse = null) {
-  $compareController = new CompareController();
-  $compareController->show($version1, $version2, $book, $chapter, $verse, $endVerse);
+// Rota para versículo único ou range
+$routes->add('/^([a-zA-Z]+)\/([0-9]?[a-zA-Z]+)\/([0-9]+)\/([0-9]+)(?:-([0-9]+))?$/', function ($version, $bookAcronym, $chapterNumber, $verseNumber, $endVerseNumber = null) {
+  $verseController = new VerseController();
+  $verseController->show($version, $bookAcronym, (int)$chapterNumber, (int)$verseNumber, $endVerseNumber ? (int)$endVerseNumber : null);
 });
 
 // Rota para visualização de múltiplos versículos

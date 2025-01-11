@@ -1,200 +1,250 @@
 <?php
 $book = $data['book'];
-$verses1 = $data['verses1'];
-$verses2 = $data['verses2'];
+$versesData = $data['versesData'];
+$selectedVersions = $data['selectedVersions'];
 ?>
 
 <div class="verse-container">
-  <div class="verse-header">
+    <!-- Breadcrumb -->
     <div class="breadcrumb">
-      <a href="<?php echo BASE_URL; ?>">Início</a> &gt;
-      <a href="<?php echo BASE_URL . $data['selectedVersion']; ?>"><?php echo $data['selectedVersion']; ?></a> &gt;
-      <a href="<?php echo BASE_URL . $data['selectedVersion'] . '/' . $book['sigla']; ?>"><?php echo $book['nome']; ?></a> &gt;
-      <a href="<?php echo BASE_URL . $data['selectedVersion'] . '/' . $book['sigla'] . '/' . $data['chapter']; ?>">Capítulo <?php echo $data['chapter']; ?></a> &gt;
-      <span>Versículo <?php echo $data['startVerse'] . ($data['startVerse'] != $data['endVerse'] ? '-' . $data['endVerse'] : ''); ?></span>
+        <a href="<?php echo BASE_URL; ?>">Início</a> &gt;
+        <a href="<?php echo BASE_URL . $data['selectedVersion']; ?>"><?php echo $data['selectedVersion']; ?></a> &gt;
+        <a href="<?php echo BASE_URL . $data['selectedVersion'] . '/' . $book['sigla']; ?>"><?php echo $book['nome']; ?></a> &gt;
+        <a href="<?php echo BASE_URL . $data['selectedVersion'] . '/' . $book['sigla'] . '/' . $data['chapter']; ?>">Capítulo <?php echo $data['chapter']; ?></a> &gt;
+        <span>Versículo <?php echo $data['startVerse'] . ($data['startVerse'] != $data['endVerse'] ? '-' . $data['endVerse'] : ''); ?></span>
     </div>
-    <h1><?php echo $book['nome'] . ' ' . $data['chapter'] . ':' . $data['startVerse'] . ($data['startVerse'] != $data['endVerse'] ? '-' . $data['endVerse'] : ''); ?></h1>
-  </div>
 
-  <div class="version-selectors">
-    <div class="version-selector">
-      <label for="version1">Primeira Versão:</label>
-      <select id="version1" onchange="changeVersion(1, this.value)">
-        <?php foreach ($data['versions'] as $version): ?>
-          <option value="<?php echo $version['sigla']; ?>" <?php echo $version['sigla'] === $data['selectedVersion'] ? 'selected' : ''; ?>>
-            <?php echo $version['nome']; ?>
-          </option>
-        <?php endforeach; ?>
-      </select>
+    <div class="verse-header">
+        <h1><?php echo $book['nome'] . ' ' . $data['chapter'] . ':' . $data['startVerse'] . ($data['startVerse'] != $data['endVerse'] ? '-' . $data['endVerse'] : ''); ?></h1>
     </div>
-    <div class="version-selector">
-      <label for="version2">Segunda Versão:</label>
-      <select id="version2" onchange="changeVersion(2, this.value)">
-        <?php foreach ($data['versions'] as $version): ?>
-          <option value="<?php echo $version['sigla']; ?>" <?php echo $version['sigla'] === $data['compareVersion'] ? 'selected' : ''; ?>>
-            <?php echo $version['nome']; ?>
-          </option>
-        <?php endforeach; ?>
-      </select>
+
+    <!-- Controle de versões -->
+    <div class="version-control">
+        <div class="version-manager">
+            <div class="selected-versions">
+                <?php foreach ($selectedVersions as $version): ?>
+                    <div class="version-tag">
+                        <?php echo $version; ?>
+                        <button onclick="removeVersion('<?php echo $version; ?>')" class="remove-version">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            <div class="version-selector">
+                <select id="versionToAdd" onchange="addVersion(this.value); this.value='';">
+                    <option value="">Adicionar versão...</option>
+                    <?php foreach ($data['versions'] as $version): ?>
+                        <?php if (!in_array($version['sigla'], $selectedVersions)): ?>
+                            <option value="<?php echo $version['sigla']; ?>">
+                                <?php echo $version['nome']; ?>
+                            </option>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <div class="verse-content-wrapper">
-    <div class="verse-content">
-      <div class="verse-column">
-        <div class="version-title"><?php echo $data['selectedVersion']; ?></div>
-        <?php foreach ($verses1 as $verse): ?>
-          <div class="verse-item">
-            <span class="verse-number"><?php echo $verse['versiculo']; ?></span>
-            <span class="verse-text"><?php echo $verse['texto']; ?></span>
-          </div>
+    <!-- Conteúdo dos versículos -->
+    <div class="comparison-container">
+        <?php foreach ($selectedVersions as $version): ?>
+            <div class="version-column">
+                <div class="version-title"><?php echo $version; ?></div>
+                <?php foreach ($versesData[$version] as $verse): ?>
+                    <div class="verse-content">
+                        <span class="verse-number"><?php echo $verse['versiculo']; ?></span>
+                        <?php echo $verse['texto']; ?>
+                    </div>
+                <?php endforeach; ?>
+            </div>
         <?php endforeach; ?>
-      </div>
-      <div class="verse-column">
-        <div class="version-title"><?php echo $data['compareVersion']; ?></div>
-        <?php foreach ($verses2 as $verse): ?>
-          <div class="verse-item">
-            <span class="verse-number"><?php echo $verse['versiculo']; ?></span>
-            <span class="verse-text"><?php echo $verse['texto']; ?></span>
-          </div>
-        <?php endforeach; ?>
-      </div>
     </div>
-  </div>
 
-  <div class="verse-navigation">
-    <?php if ($data['startVerse'] > 1): ?>
-      <a href="<?php echo BASE_URL . $data['selectedVersion'] . '+' . $data['compareVersion'] . '/' . $book['sigla'] . '/' . $data['chapter'] . '/' . ($data['startVerse'] - 1) . ($data['startVerse'] != $data['endVerse'] ? '-' . ($data['endVerse'] - 1) : ''); ?>" class="nav-link">
-        <i class="fas fa-chevron-left"></i> Versículo anterior
-      </a>
-    <?php endif; ?>
+    <!-- Navegação -->
+    <div class="verse-navigation">
+        <?php if ($data['hasPreviousVerse']): ?>
+            <a href="<?php echo BASE_URL . implode('+', $selectedVersions) . '/' . $book['sigla'] . '/' . $data['chapter'] . '/' . ($data['startVerse'] - 1) . ($data['startVerse'] != $data['endVerse'] ? '-' . ($data['endVerse'] - 1) : ''); ?>" class="nav-link">
+                <i class="fas fa-chevron-left"></i> Anterior
+            </a>
+        <?php else: ?>
+            <div></div> <!-- Espaçador para manter o layout -->
+        <?php endif; ?>
 
-    <?php if ($data['endVerse'] < $data['totalVerses']): ?>
-      <a href="<?php echo BASE_URL . $data['selectedVersion'] . '+' . $data['compareVersion'] . '/' . $book['sigla'] . '/' . $data['chapter'] . '/' . ($data['startVerse'] + 1) . ($data['startVerse'] != $data['endVerse'] ? '-' . ($data['endVerse'] + 1) : ''); ?>" class="nav-link">
-        Próximo versículo <i class="fas fa-chevron-right"></i>
-      </a>
-    <?php endif; ?>
-  </div>
+        <?php if ($data['hasNextVerse']): ?>
+            <a href="<?php echo BASE_URL . implode('+', $selectedVersions) . '/' . $book['sigla'] . '/' . $data['chapter'] . '/' . ($data['startVerse'] + 1) . ($data['startVerse'] != $data['endVerse'] ? '-' . ($data['endVerse'] + 1) : ''); ?>" class="nav-link">
+                Próximo <i class="fas fa-chevron-right"></i>
+            </a>
+        <?php else: ?>
+            <div></div> <!-- Espaçador para manter o layout -->
+        <?php endif; ?>
+    </div>
+
+    <!-- Debug info (temporário) -->
+    <div style="margin-top: 20px; font-size: 12px; color: #666;">
+        Debug: 
+        Start: <?php echo $data['startVerse']; ?>, 
+        End: <?php echo $data['endVerse']; ?>, 
+        Total: <?php echo $data['totalVerses']; ?>, 
+        Has Next: <?php echo $data['hasNextVerse'] ? 'Sim' : 'Não'; ?>, 
+        Has Previous: <?php echo $data['hasPreviousVerse'] ? 'Sim' : 'Não'; ?>
+    </div>
 </div>
 
+<script>
+function getCurrentUrl() {
+    const book = '<?php echo $book['sigla']; ?>';
+    const chapter = '<?php echo $data['chapter']; ?>';
+    const verse = '<?php echo $data['startVerse']; ?>';
+    const endVerse = '<?php echo $data['endVerse']; ?>';
+    return { book, chapter, verse, endVerse };
+}
+
+function addVersion(version) {
+    if (!version) return;
+    
+    const currentVersions = <?php echo json_encode($selectedVersions); ?>;
+    if (currentVersions.includes(version)) return;
+    
+    const { book, chapter, verse, endVerse } = getCurrentUrl();
+    const newVersions = [...currentVersions, version];
+    
+    const verseRange = verse !== endVerse ? `${verse}-${endVerse}` : verse;
+    window.location.href = `<?php echo BASE_URL ?>${newVersions.join('+')}/${book}/${chapter}/${verseRange}`;
+}
+
+function removeVersion(version) {
+    const currentVersions = <?php echo json_encode($selectedVersions); ?>;
+    if (currentVersions.length <= 1) return; // Não permitir remover a última versão
+    
+    const { book, chapter, verse, endVerse } = getCurrentUrl();
+    const newVersions = currentVersions.filter(v => v !== version);
+    
+    const verseRange = verse !== endVerse ? `${verse}-${endVerse}` : verse;
+    window.location.href = `<?php echo BASE_URL ?>${newVersions.join('+')}/${book}/${chapter}/${verseRange}`;
+}
+</script>
+
 <style>
-  .verse-container {
+.verse-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
-  }
+}
 
-  .verse-header {
+.breadcrumb {
     margin-bottom: 20px;
-  }
+    font-size: 14px;
+}
 
-  .breadcrumb {
-    font-size: 0.9em;
-    color: var(--text-light);
-    margin-bottom: 10px;
-  }
-
-  .breadcrumb a {
-    color: var(--text-light);
-    text-decoration: none;
-  }
-
-  .breadcrumb a:hover {
+.breadcrumb a {
     color: var(--primary-color);
-  }
+    text-decoration: none;
+}
 
-  .version-selectors {
-    display: flex;
-    gap: 20px;
+.verse-header {
     margin-bottom: 20px;
-  }
+}
 
-  .version-selector {
+.version-control {
+    margin-bottom: 20px;
+}
+
+.version-manager {
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.selected-versions {
     display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 15px;
+}
 
-  .version-selector label {
+.version-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 4px;
     font-size: 0.9em;
-    font-weight: 500;
-    color: var(--text-color);
-  }
+}
 
-  .version-selector select {
-    padding: 10px 15px;
-    border: 2px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    background-color: white;
+.remove-version {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 0;
+    font-size: 0.9em;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.remove-version:hover {
+    opacity: 1;
+}
+
+.version-selector select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: var(--bg-light);
     font-size: 1em;
     color: var(--text-color);
     cursor: pointer;
-    min-width: 200px;
-    box-shadow: var(--shadow-sm);
-    transition: all 0.2s ease;
-  }
+}
 
-  .version-selector select:hover {
-    border-color: var(--primary-hover);
-    box-shadow: var(--shadow-md);
-  }
-
-  .version-selector select:focus {
-    outline: none;
+.version-selector select:hover {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(46, 74, 123, 0.1);
-  }
+}
 
-  .verse-content-wrapper {
-    background: white;
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-sm);
-    overflow: hidden;
-    margin-bottom: 20px;
-  }
-
-  .verse-content {
+.comparison-container {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 20px;
-    padding: 20px;
-  }
+    margin-bottom: 20px;
+}
 
-  .verse-column {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
+.version-column {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
 
-  .version-title {
-    font-weight: 500;
-    padding: 8px 12px;
-    background-color: var(--primary-color);
+.version-title {
+    background: var(--primary-color);
     color: white;
-    border-radius: var(--radius-sm);
+    padding: 10px;
     text-align: center;
-  }
+    font-weight: bold;
+}
 
-  .verse-item {
-    display: flex;
-    gap: 10px;
-    line-height: 1.6;
-  }
+.verse-content {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
 
-  .verse-number {
+.verse-number {
+    font-weight: bold;
+    margin-right: 8px;
     color: var(--primary-color);
-    font-weight: 500;
-    min-width: 25px;
-  }
+}
 
-  .verse-navigation {
+.verse-navigation {
     display: flex;
     justify-content: space-between;
-    gap: 20px;
     margin-top: 20px;
-  }
+}
 
-  .nav-link {
+.nav-link {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -206,44 +256,23 @@ $verses2 = $data['verses2'];
     text-decoration: none;
     transition: all 0.2s;
     cursor: pointer;
-  }
+}
 
-  .nav-link:hover {
+.nav-link:hover {
     background-color: var(--bg-light);
     border-color: var(--primary-color);
     color: var(--primary-color);
-  }
+}
 
-  @media (max-width: 768px) {
-    .verse-content {
-      grid-template-columns: 1fr;
-    }
-
-    .version-selectors {
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .version-selector select {
-      width: 100%;
-    }
-
+@media (max-width: 768px) {
     .verse-navigation {
-      flex-direction: column;
-      align-items: stretch;
+        flex-direction: column;
+        align-items: stretch;
     }
 
     .nav-link {
-      justify-content: center;
+        justify-content: center;
+        margin-bottom: 10px;
     }
-  }
-</style>
-
-<script>
-  function changeVersion(position, newVersion) {
-    const version1 = position === 1 ? newVersion : document.getElementById('version1').value;
-    const version2 = position === 2 ? newVersion : document.getElementById('version2').value;
-    
-    window.location.href = `<?php echo BASE_URL ?>${version1}+${version2}/<?php echo $book['sigla'] ?>/<?php echo $data['chapter'] ?>/<?php echo $data['startVerse'] . ($data['startVerse'] != $data['endVerse'] ? '-' . $data['endVerse'] : ''); ?>`;
-  }
-</script> 
+}
+</style> 

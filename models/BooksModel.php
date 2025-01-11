@@ -13,42 +13,66 @@ class BooksModel extends BaseModel
 
   public function all()
   {
-    $query = $this->db->query('SELECT * FROM ' . $this->table . ' ORDER BY id');
-    return $query->fetchAll(PDO::FETCH_ASSOC);
+    $sql = "SELECT * FROM {$this->table} ORDER BY id";
+    $stmt = $this->db->query($sql);
+    return $stmt->fetchAll();
   }
 
-  public function getBook(String $bookAcronym)
+  public function getBook($acronym)
   {
-    // Primeiro, buscar informações básicas do livro
-    $query = $this->db->prepare('SELECT * FROM livros WHERE sigla = :bookAcronym');
-    $query->execute(['bookAcronym' => $bookAcronym]);
-    $book = $query->fetch(PDO::FETCH_ASSOC);
+    // Busca informações básicas do livro
+    $sql = "SELECT l.*, 
+            (SELECT COUNT(DISTINCT v.capitulo) FROM versiculos v WHERE v.livro_id = l.id) as total_capitulos,
+            (SELECT GROUP_CONCAT(DISTINCT v.capitulo ORDER BY v.capitulo) FROM versiculos v WHERE v.livro_id = l.id) as capitulos
+            FROM {$this->table} l 
+            WHERE l.sigla = :acronym 
+            LIMIT 1";
 
-    if ($book) {
-      // Depois, buscar a contagem de versículos por capítulo
-      $versesQuery = $this->db->prepare('SELECT capitulo, COUNT(*) as total 
-                                        FROM versiculos 
-                                        WHERE livro_id = :book_id 
-                                        GROUP BY capitulo 
-                                        ORDER BY capitulo');
-      $versesQuery->execute(['book_id' => $book['id']]);
-      $verseCounts = $versesQuery->fetchAll(PDO::FETCH_ASSOC);
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute(['acronym' => $acronym]);
+    $book = $stmt->fetch();
 
-      // Criar array com o total de versículos por capítulo
-      $book['versiculos'] = array_column($verseCounts, 'total');
+    if (!$book) {
+        return null;
+    }
+
+    // Converte a string de capítulos em um array
+    $book['capitulos'] = explode(',', $book['capitulos']);
+
+    // Busca o total de versículos por capítulo
+    $sql = "SELECT v.capitulo, COUNT(*) as total
+            FROM versiculos v
+            INNER JOIN livros l ON l.id = v.livro_id
+            WHERE l.sigla = :acronym
+            GROUP BY v.capitulo
+            ORDER BY v.capitulo";
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute(['acronym' => $acronym]);
+    $versiculosPorCapitulo = $stmt->fetchAll();
+
+    // Cria um array com o total de versículos por capítulo
+    $book['versiculos'] = [];
+    foreach ($versiculosPorCapitulo as $capitulo) {
+        $book['versiculos'][$capitulo['capitulo'] - 1] = (int)$capitulo['total'];
     }
 
     return $book;
   }
 
-  public function getChapterVerses($bookId, $chapter)
+  public function getChapterVerses($bookAcronym, $chapter)
   {
-    $query = $this->db->prepare('SELECT COUNT(*) as total FROM versiculos WHERE livro_id = :book_id AND capitulo = :chapter');
-    $query->execute([
-      'book_id' => $bookId,
+    $sql = "SELECT COUNT(*) as total FROM versiculos v
+            INNER JOIN livros l ON l.id = v.livro_id
+            WHERE l.sigla = :bookAcronym AND v.capitulo = :chapter";
+    
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute([
+      'bookAcronym' => $bookAcronym,
       'chapter' => $chapter
     ]);
     
-    return $query->fetch(PDO::FETCH_ASSOC)['total'];
+    $result = $stmt->fetch();
+    return (int)$result['total'];
   }
 }
