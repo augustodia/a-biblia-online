@@ -2,6 +2,17 @@
 define('SEARCH_PATH', 'search/');
 define('PAGE_PARAM', '&page=');
 
+// Função para destacar o termo pesquisado
+function highlightSearchTerm($text, $searchTerm) {
+    if (empty($searchTerm)) return $text;
+    
+    // Escapa caracteres especiais na expressão regular
+    $searchTerm = preg_quote($searchTerm, '/');
+    
+    // Faz o highlight mantendo case insensitive
+    return preg_replace('/(' . $searchTerm . ')/i', '<mark>$1</mark>', $text);
+}
+
 // Log para debug
 error_log("Dados recebidos na view Search: " . print_r($data, true));
 
@@ -44,7 +55,7 @@ if (!empty($data['results'])) {
                                     <li class="verse-item">
                                         <a href="<?php echo BASE_URL . $data['selectedVersion'] . '/' . $verse['book'] . '/' . $verse['capitulo'] . '/' . $verse['versiculo']; ?>">
                                             <span class="verse-number"><?php echo $verse['versiculo']; ?></span>
-                                            <span class="verse-text"><?php echo $verse['texto']; ?></span>
+                                            <span class="verse-text"><?php echo highlightSearchTerm($verse['texto'], $data['searchTerm']); ?></span>
                                         </a>
                                     </li>
                                 <?php endforeach; ?>
@@ -269,5 +280,12 @@ if (!empty($data['results'])) {
     .page-ellipsis {
         padding: 8px 12px;
         color: #666;
+    }
+
+    mark {
+        background-color: #8BA4D9;
+        color: white;
+        padding: 2px 0;
+        border-radius: 2px;
     }
 </style>

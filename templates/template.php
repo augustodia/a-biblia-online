@@ -288,20 +288,15 @@ $SELECTED_VERSION_INDEX = array_search($data['selectedVersion'], array_column($d
         height: var(--header-height-mobile);
         background: var(--primary-color);
         align-items: center;
-        justify-content: center;
         padding: 0;
         z-index: 1030;
       }
 
-      .mobile-header .home-link {
+      .mobile-header h1 {
+        color: white;
         font-size: 1.2em;
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        padding: 15px;
+        margin-left: 60px;
         white-space: nowrap;
-        color: #FFF;
-        text-decoration: none;
       }
 
       aside {
@@ -388,7 +383,11 @@ $SELECTED_VERSION_INDEX = array_search($data['selectedVersion'], array_column($d
       }
 
       .mobile-header {
-        padding: 0;
+        padding-left: 60px;
+      }
+
+      .mobile-header h1 {
+        margin-left: 0;
       }
     }
 
