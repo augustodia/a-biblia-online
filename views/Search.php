@@ -288,4 +288,34 @@ if (!empty($data['results'])) {
         padding: 2px 0;
         border-radius: 2px;
     }
+
+    @media (max-width: 840px) {
+        .pagination {
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .page-numbers {
+            order: 2;
+            width: 100%;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 10px 0;
+            gap: 8px;
+        }
+
+        .page-link {
+            padding: 8px 12px;
+            font-size: 1em;
+            min-width: 42px;
+            min-height: 42px;
+            text-align: center;
+            justify-content: center;
+        }
+
+        .page-ellipsis {
+            padding: 8px 6px;
+            font-size: 1em;
+        }
+    }
 </style>
