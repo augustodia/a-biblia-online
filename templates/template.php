@@ -9,7 +9,37 @@ $SELECTED_VERSION_INDEX = array_search($data['selectedVersion'], array_column($d
   <meta http-equiv="pragma" content="no-cache" />
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>A Bíblia Online</title>
+  <title><?php echo isset($data['pageTitle']) ? $data['pageTitle'] . ' - A Bíblia Online' : 'A Bíblia Online - Leia e Compare Versões da Bíblia'; ?></title>
+  <meta name="description" content="<?php echo isset($data['pageDescription']) ? $data['pageDescription'] : 'Leia a Bíblia online gratuitamente. Compare diferentes versões, pesquise versículos e acesse todos os livros da Bíblia em português.'; ?>">
+  <meta name="keywords" content="bíblia online, bíblia, versículos, <?php echo isset($data['pageKeywords']) ? $data['pageKeywords'] : 'biblia sagrada, novo testamento, velho testamento'; ?>">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="<?php echo isset($_SERVER['REQUEST_URI']) ? BASE_URL . ltrim($_SERVER['REQUEST_URI'], '/') : BASE_URL; ?>">
+  <meta property="og:title" content="<?php echo isset($data['pageTitle']) ? $data['pageTitle'] . ' - A Bíblia Online' : 'A Bíblia Online'; ?>">
+  <meta property="og:description" content="<?php echo isset($data['pageDescription']) ? $data['pageDescription'] : 'Leia a Bíblia online gratuitamente. Compare diferentes versões, pesquise versículos e acesse todos os livros da Bíblia em português.'; ?>">
+  <meta property="og:image" content="<?php echo BASE_URL; ?>public/assets/img/og-image.jpg">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="<?php echo isset($_SERVER['REQUEST_URI']) ? BASE_URL . ltrim($_SERVER['REQUEST_URI'], '/') : BASE_URL; ?>">
+  <meta property="twitter:title" content="<?php echo isset($data['pageTitle']) ? $data['pageTitle'] . ' - A Bíblia Online' : 'A Bíblia Online'; ?>">
+  <meta property="twitter:description" content="<?php echo isset($data['pageDescription']) ? $data['pageDescription'] : 'Leia a Bíblia online gratuitamente. Compare diferentes versões, pesquise versículos e acesse todos os livros da Bíblia em português.'; ?>">
+  <meta property="twitter:image" content="<?php echo BASE_URL; ?>public/assets/img/og-image.jpg">
+
+  <!-- Favicon -->
+  <link rel="apple-touch-icon" sizes="180x180" href="<?php echo BASE_URL; ?>public/assets/img/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="<?php echo BASE_URL; ?>public/assets/img/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="<?php echo BASE_URL; ?>public/assets/img/favicon-16x16.png">
+  <link rel="manifest" href="<?php echo BASE_URL; ?>public/assets/site.webmanifest">
+  <link rel="mask-icon" href="<?php echo BASE_URL; ?>public/assets/img/safari-pinned-tab.svg" color="#2e4a7b">
+  <meta name="msapplication-TileColor" content="#2e4a7b">
+  <meta name="theme-color" content="#2e4a7b">
+
+  <!-- Canonical URL -->
+  <link rel="canonical" href="<?php echo isset($_SERVER['REQUEST_URI']) ? BASE_URL . ltrim($_SERVER['REQUEST_URI'], '/') : BASE_URL; ?>">
+
+  <!-- Fonts e CSS -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>

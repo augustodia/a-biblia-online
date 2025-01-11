@@ -1,5 +1,15 @@
 User-agent: *
 Allow: /
+Disallow: /commands/
+Disallow: /core/
+Disallow: /tests/
+
+# Permitir acesso aos sitemaps
+Allow: /sitemap.xml
+Allow: /sitemaps/*.xml
+
+# Taxa de crawling
+Crawl-delay: 10
 
 # Sitemaps
-Sitemap: https://www.bibliasagrada.net.br/sitemap.xml 
+Sitemap: https://abibliaonline.com//sitemap.xml 
