@@ -11,7 +11,7 @@ RewriteRule ^sitemaps/sitemap-([^/]+)\.xml$ public/sitemaps/sitemap-$1.xml [L]
 
 # Proteção da pasta commands
 RewriteCond %{REQUEST_URI} ^/mvc/commands/
-RewriteCond %{REQUEST_URI} !^/mvc/commands/(GenerateSitemap\.php|analise\.php)$
+RewriteCond %{REQUEST_URI} !^/mvc/commands/(GenerateSitemap\.php|generate-sitemap\.php)$
 RewriteRule ^ - [F]
 
 # Redirecionar todas as requisições para index.php
