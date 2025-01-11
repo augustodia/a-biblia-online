@@ -62,17 +62,17 @@ class BooksModel extends BaseModel
 
   public function getChapterVerses($bookAcronym, $chapter)
   {
-    $sql = "SELECT COUNT(*) as total FROM versiculos v
-            INNER JOIN livros l ON l.id = v.livro_id
-            WHERE l.sigla = :bookAcronym AND v.capitulo = :chapter";
-    
+    $sql = "SELECT COUNT(*) as total FROM versiculos v 
+            INNER JOIN livros l ON v.livro_id = l.id 
+            WHERE l.sigla = :acronym AND v.capitulo = :chapter";
+            
     $stmt = $this->db->prepare($sql);
     $stmt->execute([
-      'bookAcronym' => $bookAcronym,
-      'chapter' => $chapter
+        ':acronym' => $bookAcronym,
+        ':chapter' => $chapter
     ]);
     
-    $result = $stmt->fetch();
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
     return (int)$result['total'];
   }
 }

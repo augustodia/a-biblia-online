@@ -63,20 +63,18 @@ $selectedVersions = $data['selectedVersions'];
 
     <!-- Navegação -->
     <div class="verse-navigation">
-        <?php if ($data['hasPreviousVerse']): ?>
-            <a href="<?php echo BASE_URL . implode('+', $selectedVersions) . '/' . $book['sigla'] . '/' . $data['chapter'] . '/' . ($data['startVerse'] - 1) . ($data['startVerse'] != $data['endVerse'] ? '-' . ($data['endVerse'] - 1) : ''); ?>" class="nav-link">
-                <i class="fas fa-chevron-left"></i> Anterior
+        <?php if ((int)$data['startVerse'] > 1): ?>
+            <a href="<?php echo BASE_URL . implode('+', $data['selectedVersions']) . '/' . $book['sigla'] . '/' . $data['chapter'] . '/' . ($data['startVerse'] - 1) . ($data['startVerse'] != $data['endVerse'] ? '-' . ($data['endVerse'] - 1) : ''); ?>" class="nav-link">
+                <i class="fas fa-chevron-left"></i>
+                Anterior
             </a>
-        <?php else: ?>
-            <div></div> <!-- Espaçador para manter o layout -->
         <?php endif; ?>
 
-        <?php if ($data['hasNextVerse']): ?>
-            <a href="<?php echo BASE_URL . implode('+', $selectedVersions) . '/' . $book['sigla'] . '/' . $data['chapter'] . '/' . ($data['startVerse'] + 1) . ($data['startVerse'] != $data['endVerse'] ? '-' . ($data['endVerse'] + 1) : ''); ?>" class="nav-link">
-                Próximo <i class="fas fa-chevron-right"></i>
+        <?php if ((int)$data['endVerse'] < (int)$data['totalVerses']): ?>
+            <a href="<?php echo BASE_URL . implode('+', $data['selectedVersions']) . '/' . $book['sigla'] . '/' . $data['chapter'] . '/' . ($data['startVerse'] + 1) . ($data['startVerse'] != $data['endVerse'] ? '-' . ($data['endVerse'] + 1) : ''); ?>" class="nav-link">
+                Próximo
+                <i class="fas fa-chevron-right"></i>
             </a>
-        <?php else: ?>
-            <div></div> <!-- Espaçador para manter o layout -->
         <?php endif; ?>
     </div>
 
@@ -85,9 +83,7 @@ $selectedVersions = $data['selectedVersions'];
         Debug: 
         Start: <?php echo $data['startVerse']; ?>, 
         End: <?php echo $data['endVerse']; ?>, 
-        Total: <?php echo $data['totalVerses']; ?>, 
-        Has Next: <?php echo $data['hasNextVerse'] ? 'Sim' : 'Não'; ?>, 
-        Has Previous: <?php echo $data['hasPreviousVerse'] ? 'Sim' : 'Não'; ?>
+        Total: <?php echo $data['totalVerses']; ?>
     </div>
 </div>
 

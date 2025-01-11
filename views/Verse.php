@@ -64,17 +64,25 @@ $firstVerse = reset($verses);
     </div>
 
     <div class="verse-navigation">
-        <?php if ($data['startVerse'] > 1): ?>
+        <?php if ((int)$data['startVerse'] > 1): ?>
             <a href="<?php echo BASE_URL . $data['selectedVersion'] . '/' . $book['sigla'] . '/' . $data['chapter'] . '/' . ($data['startVerse'] - 1); ?>" class="nav-link">
                 <i class="fas fa-chevron-left"></i> Versículo anterior
             </a>
         <?php endif; ?>
 
-        <?php if ($data['endVerse'] < $book['versiculos'][$data['chapter'] - 1]): ?>
+        <?php if ((int)$data['endVerse'] < (int)$data['totalVerses']): ?>
             <a href="<?php echo BASE_URL . $data['selectedVersion'] . '/' . $book['sigla'] . '/' . $data['chapter'] . '/' . ($data['endVerse'] + 1); ?>" class="nav-link">
                 Próximo versículo <i class="fas fa-chevron-right"></i>
             </a>
         <?php endif; ?>
+    </div>
+
+    <!-- Debug info (temporário) -->
+    <div style="margin-top: 20px; font-size: 12px; color: #666;">
+        Debug: 
+        Start: <?php echo $data['startVerse']; ?>, 
+        End: <?php echo $data['endVerse']; ?>, 
+        Total: <?php echo $data['totalVerses']; ?>
     </div>
 </div>
 
