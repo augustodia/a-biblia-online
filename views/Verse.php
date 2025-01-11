@@ -49,16 +49,17 @@ $firstVerse = reset($verses);
     </div>
 
     <div class="verse-content">
-        <!-- Versículos atuais -->
         <?php foreach ($verses as $verse): ?>
-            <div class="current-verse">
-                <div class="verse-content-wrapper">
-                    <span class="verse-number"><?php echo $verse['versiculo']; ?></span>
-                    <div class="verse-text">
-                        <?php echo $verse['texto']; ?>
+            <?php if ($verse && isset($verse['versiculo'], $verse['texto'])): ?>
+                <div class="current-verse">
+                    <div class="verse-content-wrapper">
+                        <span class="verse-number"><?php echo $verse['versiculo']; ?></span>
+                        <div class="verse-text">
+                            <?php echo $verse['texto']; ?>
+                        </div>
                     </div>
                 </div>
-            </div>
+            <?php endif; ?>
         <?php endforeach; ?>
     </div>
 
