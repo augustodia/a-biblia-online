@@ -71,8 +71,14 @@ $routes->add('/^([a-zA-Z]+)\/([0-9]?[a-zA-Z]+)\/([0-9]+)$/', function ($versionA
   $versesController->index($versionAcronym, $bookAcronym, $chapterNumber);
 });
 
-// Rota para comparação de versões (com ou sem range)
-$routes->add('/^([a-zA-Z]+[ +][a-zA-Z]+)\/([0-9]?[a-zA-Z]+)\/([0-9]+)\/([0-9]+)(?:-([0-9]+))?$/', function ($versions, $bookAcronym, $chapterNumber, $verseNumber, $endVerseNumber = null) {
+// Rota para versículo único ou range
+$routes->add('/^([a-zA-Z]+)\/([0-9]?[a-zA-Z]+)\/([0-9]+)\/([0-9]+)(?:-([0-9]+))?$/', function ($version, $bookAcronym, $chapterNumber, $verseNumber, $endVerseNumber = null) {
+  $verseController = new VerseController();
+  $verseController->show($version, $bookAcronym, (int)$chapterNumber, (int)$verseNumber, $endVerseNumber ? (int)$endVerseNumber : null);
+});
+
+// Rota para comparação de versões (precisa ter pelo menos 2 versões)
+$routes->add('/^([a-zA-Z]+[ +][a-zA-Z]+(?:[ +][a-zA-Z]+)*)\/([0-9]?[a-zA-Z]+)\/([0-9]+)\/([0-9]+)(?:-([0-9]+))?$/', function ($versions, $bookAcronym, $chapterNumber, $verseNumber, $endVerseNumber = null) {
   $compareController = new CompareController();
   $compareController->show(
     str_replace(' ', '+', $versions),
@@ -81,12 +87,6 @@ $routes->add('/^([a-zA-Z]+[ +][a-zA-Z]+)\/([0-9]?[a-zA-Z]+)\/([0-9]+)\/([0-9]+)(
     (int)$verseNumber, 
     $endVerseNumber ? (int)$endVerseNumber : null
   );
-});
-
-// Rota para versículo único ou range
-$routes->add('/^([a-zA-Z]+)\/([0-9]?[a-zA-Z]+)\/([0-9]+)\/([0-9]+)(?:-([0-9]+))?$/', function ($version, $bookAcronym, $chapterNumber, $verseNumber, $endVerseNumber = null) {
-  $verseController = new VerseController();
-  $verseController->show($version, $bookAcronym, (int)$chapterNumber, (int)$verseNumber, $endVerseNumber ? (int)$endVerseNumber : null);
 });
 
 // Rota para visualização de múltiplos versículos

@@ -5,33 +5,61 @@ class CompareController extends BaseController {
         $versesModel = new VersesModel();
         $booksModel = new BooksModel();
         
+        // // Debug dos parâmetros recebidos
+        // echo "<div style='background: #f0f0f0; padding: 10px; margin: 10px; font-family: monospace;'>";
+        // echo "<strong>Debug - Parâmetros recebidos:</strong><br>";
+        // echo "versions: " . $versions . "<br>";
+        // echo "bookAcronym: " . $bookAcronym . "<br>";
+        // echo "chapter: " . $chapter . "<br>";
+        // echo "verse: " . $verse . "<br>";
+        // echo "endVerse: " . ($endVerse ?? 'null') . "<br><br>";
+        
         // Separa as versões e remove espaços em branco
-        $versionArray = array_map('trim', explode('+', $versions));
-        $selectedVersion = $versionArray[0];
+        $versionArray = array_filter(array_map('trim', explode('+', $versions)));
+        $selectedVersion = reset($versionArray);
         
-        // Busca os dados do livro e total de versículos
+        // Busca os dados do livro
         $book = $booksModel->getBook($bookAcronym);
-        $totalVerses = $booksModel->getChapterVerses($bookAcronym, (int)$chapter);
+        // if (!$book) {
+        //     echo "Livro não encontrado: " . $bookAcronym . "<br>";
+        //     header('Location: ' . BASE_URL);
+        //     exit;
+        // }
         
-        // Debug do total de versículos
-        error_log("Debug Compare - Parâmetros getChapterVerses:");
-        error_log("bookAcronym: " . $bookAcronym);
-        error_log("chapter: " . $chapter);
-        error_log("totalVerses retornado: " . $totalVerses);
+        // Garante que os valores são inteiros e válidos
+        $chapter = max(1, (int)$chapter);
+        $startVerse = max(1, (int)$verse);
+        $endVerse = $endVerse ? max($startVerse, (int)$endVerse) : $startVerse;
         
-        // Garante que os valores são inteiros
-        $chapter = (int)$chapter;
-        $startVerse = (int)$verse;
-        $endVerse = $endVerse ? (int)$endVerse : $startVerse;
+        // Se endVerse for menor que startVerse, inverte
+        if ($endVerse < $startVerse) {
+            $temp = $startVerse;
+            $startVerse = $endVerse;
+            $endVerse = $temp;
+        }
+        
+        // Busca o total de versículos
+        $totalVerses = $booksModel->getChapterVerses($bookAcronym, $chapter);
+        
+        // // Debug dos valores processados
+        // echo "<strong>Debug - Valores processados:</strong><br>";
+        // echo "chapter: " . $chapter . "<br>";
+        // echo "startVerse: " . $startVerse . "<br>";
+        // echo "endVerse: " . $endVerse . "<br>";
+        // echo "totalVerses: " . $totalVerses . "<br>";
+        // echo "book: " . print_r($book, true) . "<br>";
+        // echo "versionArray: " . print_r($versionArray, true) . "<br>";
+        // echo "</div>";
         
         // Prepara os dados das versões
         $versesData = [];
         foreach ($versionArray as $version) {
-            if (empty($version)) continue;
-            
             $verses = [];
             for ($i = $startVerse; $i <= $endVerse; $i++) {
-                $verses[] = $versesModel->getVerse($version, $bookAcronym, $chapter, $i);
+                $verseData = $versesModel->getVerse($version, $bookAcronym, $chapter, $i);
+                if ($verseData) {
+                    $verses[] = $verseData;
+                }
             }
             $versesData[$version] = $verses;
         }
@@ -47,18 +75,10 @@ class CompareController extends BaseController {
             'startVerse' => $startVerse,
             'endVerse' => $endVerse,
             'versesData' => $versesData,
-            'totalVerses' => (int)$totalVerses,
+            'totalVerses' => $totalVerses,
             'hasNextVerse' => $endVerse < $totalVerses,
             'hasPreviousVerse' => $startVerse > 1
         );
-        
-        // Debug
-        error_log("Debug Compare - Dados passados para a view:");
-        error_log("startVerse: " . $data['startVerse']);
-        error_log("endVerse: " . $data['endVerse']);
-        error_log("totalVerses: " . $data['totalVerses']);
-        error_log("hasNextVerse: " . ($data['hasNextVerse'] ? 'true' : 'false'));
-        error_log("hasPreviousVerse: " . ($data['hasPreviousVerse'] ? 'true' : 'false'));
         
         $this->loadTemplate('Compare', $data);
     }
