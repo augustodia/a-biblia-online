@@ -19,27 +19,15 @@ class Routes
     $url = isset($_GET['url']) ? rawurldecode($_GET['url']) : '/';
     $method = $_SERVER['REQUEST_METHOD'];
     
-    // Debug
-    $this->debug[] = "URL recebida: " . $url;
-    
     foreach ($this->routes as $route) {
-      $this->debug[] = "Testando rota: " . $route['route'];
       if ($route['method'] === $method && preg_match($route['route'], $url, $params)) {
-        $this->debug[] = "Match encontrado! Params: " . print_r($params, true);
         array_shift($params);
         return call_user_func_array($route['callback'], $params);
       }
     }
-
-    $this->debug[] = "Nenhuma rota encontrada para a URL: " . $url;
     
-    // Exibe os logs antes do 404
-    echo "<pre>LOGS DE DEBUG:\n\n";
-    echo implode("\n", $this->debug);
-    echo "</pre>";
-    
-    header("HTTP/1.0 404 Not Found");
-    echo "404 - Página não encontrada";
+    $errorController = new ErrorController();
+    $errorController->notFound();
   }
 }
 
