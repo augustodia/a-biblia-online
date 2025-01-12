@@ -593,7 +593,6 @@ $SELECTED_VERSION_INDEX = array_search($data['selectedVersion'], array_column($d
       menuToggle.style.display = sidebar.classList.contains('show') ? 'none' : 'flex';
     }
 
-    // Fechar menu ao clicar em um link dos livros
     const bookLinks = document.querySelectorAll('.book-list a');
     bookLinks.forEach(link => {
       link.addEventListener('click', () => {
@@ -603,7 +602,6 @@ $SELECTED_VERSION_INDEX = array_search($data['selectedVersion'], array_column($d
       });
     });
 
-    // Fechar menu ao redimensionar para desktop
     window.addEventListener('resize', () => {
       if (window.innerWidth > 768) {
         sidebar.classList.remove('show');
@@ -615,7 +613,6 @@ $SELECTED_VERSION_INDEX = array_search($data['selectedVersion'], array_column($d
       }
     });
 
-    // Ajuste para o dropdown de versões
     const selectedVersion = document.querySelector('.selected-version');
     const collapse = document.querySelector('.collapse');
     
