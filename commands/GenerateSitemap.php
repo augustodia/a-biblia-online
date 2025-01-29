@@ -14,8 +14,9 @@ class SitemapGenerator {
     private $outputDir;
     private $urls = [];
     private $processedUrls = 0;
-    private $totalUrls = 0;
-    private const CHUNK_SIZE = 1000; // Processamento em chunks
+    private $totalUrlsByVersion = [];
+    private $currentFileIndex = 1;
+    private const CHUNK_SIZE = 1000;
     private $xmlWriter;
 
     public function __construct(String $baseUrl) {
@@ -51,6 +52,7 @@ class SitemapGenerator {
             $empty = max(0, $barSize - $filled);
             $bar = str_repeat("█", $filled) . str_repeat("░", $empty);
 
+            // Força limpar a linha atual antes de escrever
             echo sprintf("\033[2K\r%s [%s] %d%% (%d/%d)",
                 $prefix,
                 $bar,
@@ -70,6 +72,11 @@ class SitemapGenerator {
         }
 
         $this->log("Iniciando geração dos sitemaps...\n");
+
+        // Limpa diretório de sitemaps antigos
+        if (file_exists($this->outputDir)) {
+            array_map('unlink', glob($this->outputDir . '/*'));
+        }
 
         $versionsModel = new VersionModel();
         $versions = $versionsModel->all();
@@ -94,47 +101,82 @@ class SitemapGenerator {
             $chaptersCount->execute([$version['sigla']]);
             $totalChapters = $chaptersCount->fetch(PDO::FETCH_COLUMN);
             
-            // Conta versículos
+            // Conta versículos e calcula combinações
             $versesCount = $this->db->prepare('
-                SELECT COUNT(DISTINCT CONCAT(l.sigla, v.capitulo, v.versiculo)) as total
+                SELECT l.sigla, v.capitulo, COUNT(*) as total_verses
                 FROM versiculos v
                 INNER JOIN versoes ver ON v.versao_id = ver.id
                 INNER JOIN livros l ON v.livro_id = l.id
                 WHERE ver.sigla = ?
+                GROUP BY l.sigla, v.capitulo
             ');
             $versesCount->execute([$version['sigla']]);
-            $totalVerses = $versesCount->fetch(PDO::FETCH_COLUMN);
+            $totalVerses = 0;
+            $totalCombinations = 0;
+
+            while ($chapter = $versesCount->fetch()) {
+                $totalVerses += $chapter['total_verses'];
+                // Para cada versículo inicial, podemos combinar com todos os versículos seguintes
+                // Fórmula: soma de (n-1) + (n-2) + ... + 1, onde n é o número de versículos
+                $n = $chapter['total_verses'];
+                $totalCombinations += ($n * ($n - 1)) / 2;
+            }
             
-            // 1 URL para a versão + URLs de livros + URLs de capítulos + URLs de versículos
-            $totalUrlsForVersion = 1 + $totalBooks + $totalChapters + $totalVerses;
-            $this->log(sprintf("Total para %s: %d URLs", $version['sigla'], $totalUrlsForVersion));
+            // Armazena o total para esta versão
+            $this->totalUrlsByVersion[$version['sigla']] = 1 + $totalBooks + $totalChapters + $totalVerses + $totalCombinations;
+            
+            $this->log(sprintf("Total para %s: %d URLs (Livros: %d, Capítulos: %d, Versículos: %d, Combinações: %d)",
+                $version['sigla'],
+                $this->totalUrlsByVersion[$version['sigla']],
+                $totalBooks,
+                $totalChapters,
+                $totalVerses,
+                $totalCombinations
+            ));
         }
 
         $this->log("\nIniciando processamento...\n");
 
         foreach ($versions as $version) {
             $this->urls = [];
+            $this->processedUrls = 0;
+            $this->currentFileIndex = 1;
+            $versionSitemapFiles = []; // Array para armazenar os sitemaps desta versão
+            
             $this->log("\nProcessando versão " . $version['sigla'] . "...");
             
             // Adiciona URL da versão
             $this->addUrl($this->baseUrl . '/' . $version['sigla'], '0.9', 'weekly');
-            $this->showProgress(1, $totalUrlsForVersion, "URLs " . $version['sigla']);
+            $this->processedUrls++;
+            $this->showProgress($this->processedUrls, $this->totalUrlsByVersion[$version['sigla']], "URLs " . $version['sigla']);
             
             // Adiciona livros
-            $this->addBooksForVersion($version, $totalUrlsForVersion);
+            $this->addBooksForVersion($version, $this->totalUrlsByVersion[$version['sigla']]);
             
             // Adiciona capítulos
-            $this->addChaptersForVersion($version, $totalUrlsForVersion);
+            $this->addChaptersForVersion($version, $this->totalUrlsByVersion[$version['sigla']]);
             
             // Adiciona versículos
-            $this->addVersesForVersion($version, $totalUrlsForVersion);
+            $this->addVersesForVersion($version, $this->totalUrlsByVersion[$version['sigla']], $versionSitemapFiles);
 
-            // Gera arquivo
-            $sitemapFile = $this->writeSitemapFile($version['sigla']);
-            $sitemapFiles[] = [
-                'loc' => str_replace(__DIR__ . '/../public', $this->baseUrl, $sitemapFile),
-                'lastmod' => date('Y-m-d')
-            ];
+            // Se ainda houver URLs não salvas, salva no último arquivo
+            if (count($this->urls) > 0) {
+                $sitemapFile = $this->writeSitemapFile($version['sigla'] . '-' . str_pad($this->currentFileIndex++, 3, '0', STR_PAD_LEFT));
+                $versionSitemapFiles[] = [
+                    'loc' => str_replace(__DIR__ . '/../public', $this->baseUrl, $sitemapFile),
+                    'lastmod' => date('Y-m-d')
+                ];
+            }
+
+            // Cria o índice para esta versão
+            if (!empty($versionSitemapFiles)) {
+                $this->createVersionSitemapIndex($version['sigla'], $versionSitemapFiles);
+                // Adiciona o índice da versão ao índice principal
+                $sitemapFiles[] = [
+                    'loc' => $this->baseUrl . '/sitemaps/sitemap-' . strtolower($version['sigla']) . '.xml',
+                    'lastmod' => date('Y-m-d')
+                ];
+            }
             
             echo "\n"; // Nova linha após completar a versão
         }
@@ -148,7 +190,7 @@ class SitemapGenerator {
         
         foreach ($books as $book) {
             $this->addUrl(
-                $this->baseUrl . '/' . $version['sigla'] . '/' . $book['sigla'],
+                $this->baseUrl . '/' . $version['sigla'] . '/' . rawurlencode($book['sigla']),
                 '0.8',
                 'weekly'
             );
@@ -174,7 +216,7 @@ class SitemapGenerator {
 
             while ($chapter = $chapters->fetch(PDO::FETCH_COLUMN)) {
                 $this->addUrl(
-                    $this->baseUrl . '/' . $version['sigla'] . '/' . $book['sigla'] . '/' . $chapter,
+                    $this->baseUrl . '/' . $version['sigla'] . '/' . rawurlencode($book['sigla']) . '/' . $chapter,
                     '0.7',
                     'weekly'
                 );
@@ -184,15 +226,31 @@ class SitemapGenerator {
         }
     }
 
-    private function addVersesForVersion($version, $totalUrls): void {
+    private function addVersesForVersion($version, $totalUrls, &$versionSitemapFiles): void {
         $offset = 0;
+        $currentFileUrls = 0;
+
+        // Query otimizada: Pega os versículos e o total do capítulo em uma única consulta
         $versesStmt = $this->db->prepare('
-            SELECT DISTINCT l.sigla as livro_sigla, v.capitulo, v.versiculo
-            FROM versiculos v
-            INNER JOIN versoes ver ON v.versao_id = ver.id
-            INNER JOIN livros l ON v.livro_id = l.id
-            WHERE ver.sigla = ?
-            ORDER BY l.sigla, v.capitulo, v.versiculo
+            WITH VerseInfo AS (
+                SELECT 
+                    l.sigla as livro_sigla,
+                    v.capitulo,
+                    v.versiculo,
+                    COUNT(*) OVER (PARTITION BY l.sigla, v.capitulo) as total_versiculos_capitulo,
+                    ROW_NUMBER() OVER (PARTITION BY l.sigla, v.capitulo ORDER BY v.versiculo) as verse_position
+                FROM versiculos v
+                INNER JOIN versoes ver ON v.versao_id = ver.id
+                INNER JOIN livros l ON v.livro_id = l.id
+                WHERE ver.sigla = ?
+            )
+            SELECT 
+                livro_sigla,
+                capitulo,
+                versiculo,
+                total_versiculos_capitulo
+            FROM VerseInfo
+            ORDER BY livro_sigla, capitulo, versiculo
             LIMIT ? OFFSET ?
         ');
         
@@ -202,18 +260,68 @@ class SitemapGenerator {
             $count = count($verses);
             
             foreach ($verses as $verse) {
+                // URL do versículo individual
                 $this->addUrl(
-                    $this->baseUrl . '/' . $version['sigla'] . '/' . $verse['livro_sigla'] . '/' .
+                    $this->baseUrl . '/' . $version['sigla'] . '/' . rawurlencode($verse['livro_sigla']) . '/' .
                     $verse['capitulo'] . '/' . $verse['versiculo'],
                     '0.6',
                     'monthly'
                 );
                 $this->processedUrls++;
+                $currentFileUrls++;
+
+                // Gera combinações de versículos apenas até o total real do capítulo
+                $combinationsGenerated = $this->addVerseRangeCombinations(
+                    $version,
+                    $verse['livro_sigla'],
+                    $verse['capitulo'],
+                    (int)$verse['versiculo'],
+                    (int)$verse['total_versiculos_capitulo']
+                );
+                
+                $this->processedUrls += $combinationsGenerated;
+                $currentFileUrls += $combinationsGenerated;
+
+                // Atualiza o progresso após cada versículo e suas combinações
                 $this->showProgress($this->processedUrls, $totalUrls, "URLs " . $version['sigla']);
+
+                // Se atingiu o limite, salva o arquivo atual e limpa o buffer
+                if ($currentFileUrls >= 45000) {
+                    $sitemapFile = $this->writeSitemapFile($version['sigla'] . '-' . str_pad($this->currentFileIndex++, 3, '0', STR_PAD_LEFT));
+                    $versionSitemapFiles[] = [
+                        'loc' => str_replace(__DIR__ . '/../public', $this->baseUrl, $sitemapFile),
+                        'lastmod' => date('Y-m-d')
+                    ];
+                    $currentFileUrls = 0;
+                }
             }
             
             $offset += $count;
         } while ($count === self::CHUNK_SIZE);
+
+        // Salva as URLs restantes se houver
+        if ($currentFileUrls > 0) {
+            $sitemapFile = $this->writeSitemapFile($version['sigla'] . '-' . str_pad($this->currentFileIndex++, 3, '0', STR_PAD_LEFT));
+            $versionSitemapFiles[] = [
+                'loc' => str_replace(__DIR__ . '/../public', $this->baseUrl, $sitemapFile),
+                'lastmod' => date('Y-m-d')
+            ];
+        }
+    }
+
+    private function addVerseRangeCombinations($version, $book, $chapter, $startVerse, $totalVerses): int {
+        $combinationsCount = 0;
+        // Gera apenas combinações até o último versículo do capítulo
+        for ($endVerse = $startVerse + 1; $endVerse <= $totalVerses; $endVerse++) {
+            $this->addUrl(
+                $this->baseUrl . '/' . $version['sigla'] . '/' . rawurlencode($book) . '/' .
+                $chapter . '/' . $startVerse . '-' . $endVerse,
+                '0.5',
+                'monthly'
+            );
+            $combinationsCount++;
+        }
+        return $combinationsCount;
     }
 
     private function addUrl($loc, $priority, $changefreq): void {
@@ -223,7 +331,7 @@ class SitemapGenerator {
         $this->xmlWriter->writeElement('changefreq', $changefreq);
         $this->xmlWriter->writeElement('priority', $priority);
         $this->xmlWriter->endElement();
-        $this->urls[] = true; // Apenas para contagem
+        $this->urls[] = true;
     }
 
     private function writeSitemapFile($suffix): string {
@@ -254,15 +362,19 @@ class SitemapGenerator {
         if (!file_exists($outputFile)) {
             throw new SitemapFileWriteException("O arquivo não foi criado: " . $outputFile);
         }
+
+        // Move o cursor uma linha acima e limpa
+        echo "\033[1A\033[2K";
         
-        $this->log(sprintf(
-            "\nSitemap para %s gerado com sucesso (%d URLs, %s)",
+        // Salva a mensagem de log
+        echo sprintf(
+            "Sitemap para %s gerado com sucesso (%d URLs, %s)\n",
             $suffix,
             count($this->urls),
             $this->formatBytes(filesize($outputFile))
-        ));
+        );
 
-        $this->processedUrls = 0;
+        // Limpa apenas as URLs e o XMLWriter, mantém o contador
         $this->xmlWriter->flush();
         $this->urls = [];
 
@@ -298,6 +410,35 @@ class SitemapGenerator {
         
         $this->log(sprintf(
             "\nSitemap index gerado com sucesso (%d sitemaps, %s)",
+            count($sitemapFiles),
+            $this->formatBytes(filesize($indexFile))
+        ));
+    }
+
+    private function createVersionSitemapIndex($version, $sitemapFiles): void {
+        $indexFile = $this->outputDir . '/sitemap-' . strtolower($version) . '.xml';
+        
+        $handle = fopen($indexFile, 'wb');
+        if ($handle === false) {
+            throw new SitemapFileWriteException("Não foi possível abrir o arquivo index da versão para escrita");
+        }
+
+        fwrite($handle, '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL);
+        fwrite($handle, '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL);
+
+        foreach ($sitemapFiles as $sitemap) {
+            fwrite($handle, "  <sitemap>\n");
+            fwrite($handle, "    <loc>{$sitemap['loc']}</loc>\n");
+            fwrite($handle, "    <lastmod>{$sitemap['lastmod']}</lastmod>\n");
+            fwrite($handle, "  </sitemap>\n");
+        }
+
+        fwrite($handle, '</sitemapindex>');
+        fclose($handle);
+        
+        $this->log(sprintf(
+            "\nSitemap index para %s gerado com sucesso (%d sitemaps, %s)",
+            $version,
             count($sitemapFiles),
             $this->formatBytes(filesize($indexFile))
         ));
