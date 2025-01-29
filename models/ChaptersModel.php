@@ -13,7 +13,13 @@ class ChaptersModel extends BaseModel
 
   public function getAllChaptersByBook(String $bookAcronym)
   {
-    $query = $this->db->prepare('SELECT DISTINCT capitulo FROM ' . $this->table . ' WHERE livro_id = (SELECT id FROM livros WHERE sigla = :bookAcronym)');
+    $query = $this->db->prepare('
+      SELECT DISTINCT v.capitulo 
+      FROM ' . $this->table . ' v
+      INNER JOIN livros l ON v.livro_id = l.id
+      WHERE l.sigla = :bookAcronym
+      ORDER BY v.capitulo
+    ');
     $query->execute(['bookAcronym' => $bookAcronym]);
     return $query->fetchAll();
   }

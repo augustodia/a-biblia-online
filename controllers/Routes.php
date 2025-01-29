@@ -43,17 +43,17 @@ $routes->add('/^search\/([a-zA-Z]+).*$/', function ($versionAcronym) {
   $searchController->index($versionAcronym);
 });
 
-$routes->add('/^([a-zA-Z]+)$/', function (String $versionAcronym) {
+$routes->add('/^([a-zA-ZÀ-ÿ]+)$/', function (String $versionAcronym) {
   $homeController = new HomeController();
   $homeController->index($versionAcronym);
 });
 
-$routes->add('/^([a-zA-Z]+)\/([0-9]?[a-zA-Z]+)$/', function ($version, $bookAcronym) {
+$routes->add('/^([a-zA-ZÀ-ÿ]+)\/([0-9]?[a-zA-ZÀ-ÿ]+)$/u', function ($version, $bookAcronym) {
   $chaptersController = new ChaptersController();
   $chaptersController->index($version, $bookAcronym);
 });
 
-$routes->add('/^([a-zA-Z]+)\/([0-9]?[a-zA-Z]+)\/([0-9]+)$/', function ($versionAcronym, $bookAcronym, $chapterNumber) {
+$routes->add('/^([a-zA-ZÀ-ÿ]+)\/([0-9]?[a-zA-ZÀ-ÿ]+)\/([0-9]+)$/u', function ($versionAcronym, $bookAcronym, $chapterNumber) {
   $versesController = new VersesController();
   $versesController->index($versionAcronym, $bookAcronym, $chapterNumber);
 });
